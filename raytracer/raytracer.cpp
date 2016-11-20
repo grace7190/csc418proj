@@ -257,7 +257,7 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 			Ray3D ray;
 			ray.origin = origin + (viewToWorld*imagePlane);
 			ray.dir = ray.origin - origin;
-
+            ray.dir.normalize();
 
 			Colour col = shadeRay(ray); 
 

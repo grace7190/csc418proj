@@ -19,6 +19,43 @@ void PointLight::shade( Ray3D& ray ) {
 	// It is assumed at this point that the intersection information in ray 
 	// is available.  So be sure that traverseScene() is called on the ray 
 	// before this function.  
-
+    
+    /////////////////////////////////////////////////////////////
+    //based on this code right hurr vvv
+  // Lambert's cosine law
+  // float lambertian = max(dot(N, L), 0.0);
+  // float specular = 0.0;
+  // if(lambertian > 0.0) {
+    // vec3 R = reflect(-L, N);      // Reflected light vector
+    // vec3 V = normalize(-vertPos); // Vector to viewer
+   // Compute the specular term
+    // float specAngle = max(dot(R, V), 0.0);
+    // specular = pow(specAngle, shininessVal);
+  // }
+  // gl_FragColor = vec4(Ka * ambientColor +
+                      // Kd * lambertian * diffuseColor +
+                      // Ks * specular * specularColor, 1.0);
+   //////////////////////////////////////////////////////////////
+   
+    double Ka = 1.0;
+    double Kd = 1.0;
+    double Ks = 1.0; 
+    
+    Intersection in = ray.intersection;
+    Point3D p = in.point;
+    Vector3D s = _pos - p;
+    Material *ma = in.mat;
+    
+    double lam = std::max((in.normal).dot(s),0.0);
+    double spec = 0.0;
+    if (lam > 0.0) {
+        Vector3D R = 2.0*(s.dot(in.normal)*in.normal - s);
+        Vector3D V = -ray.dir;
+        spec = pow(std::max(R.dot(V), 0.0), ma->specular_exp);
+    }
+    Colour co = (Ka*_col_ambient + Kd*lam*ma->diffuse + Ks*spec*ma->specular);
+    co.clamp();
+    ray.col = co;
+    
 }
 
