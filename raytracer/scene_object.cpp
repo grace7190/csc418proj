@@ -40,6 +40,31 @@ bool UnitSphere::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 	//
 	// HINT: Remember to first transform the ray into object space  
 	// to simplify the intersection test.
+	Point3D modelOrigin = worldToModel * ray.origin;
+	Vector3D modelDir = worldToModel * ray.dir;
+
+	Point3D center = Point3D(0,0,0);
+	double A = modelDir.dot(modelDir);
+	double B = modelDir.dot(modelOrigin - center);
+	double C = (modelOrigin - center).dot(modelOrigin - center) - 1;
+	double D = B*B - A*C;
+
+	if (D < 0) {
+		return false;
+	} else {
+		double lambda1 = (-2*B + pow(D, 0.5)) / 2*A;
+		double lambda2 = (-2*B - pow(D, 0.5)) / 2*A;
+		if (lambda1 < 0.0 && lambda2 < 0.0) {
+			return false;
+		} else {
+			double minLambda = std::min(lambda1, lambda2);
+			ray.intersection.point = modelToWorld * (modelOrigin + minLambda*modelDir);
+			ray.intersection.normal = modelToWorld * (((modelOrigin + minLambda*modelDir) + (modelOrigin + minLambda*modelDir)) - center);
+			ray.intersection.normal.normalize();
+			ray.intersection.none = false;
+			ray.intersection.t_value = minLambda;
+		}
+	}
 	
 	return false;
 }

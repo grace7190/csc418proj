@@ -157,6 +157,11 @@ Point3D operator +(const Point3D& u, const Vector3D& v)
   return Point3D(u[0]+v[0], u[1]+v[1], u[2]+v[2]);
 }
 
+Point3D operator +(const Point3D& u, const Point3D& v)
+{
+  return Point3D(u[0]+v[0], u[1]+v[1], u[2]+v[2]);
+}
+
 Vector3D operator -(const Point3D& u, const Point3D& v)
 {
   return Vector3D(u[0]-v[0], u[1]-v[1], u[2]-v[2]);
