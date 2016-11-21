@@ -37,9 +37,9 @@ void PointLight::shade( Ray3D& ray ) {
                       // Ks * specular * specularColor, 1.0);
    //////////////////////////////////////////////////////////////
    
-    double Ka = 0.0;
+    double Ka = 0.1;
     double Kd = 0.2;
-    double Ks = 0.2; 
+    double Ks = 1.0; 
     
     Intersection in = ray.intersection;
     Point3D p = in.point;
@@ -50,6 +50,7 @@ void PointLight::shade( Ray3D& ray ) {
     double spec = 0.0;
     if (lam > 0.0) {
         Vector3D R = 2.0*(s.dot(in.normal)*in.normal - s);
+        R.normalize();
         Vector3D V = -ray.dir;
         spec = pow(std::max(R.dot(V), 0.0), ma->specular_exp);
     }
