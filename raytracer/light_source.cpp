@@ -37,9 +37,9 @@ void PointLight::shade( Ray3D& ray ) {
                       // Ks * specular * specularColor, 1.0);
    //////////////////////////////////////////////////////////////
    
-    double Ka = 1.0;
-    double Kd = 1.0;
-    double Ks = 1.0; 
+    double Ka = 0.2;
+    double Kd = 0.2;
+    double Ks = 0.2; 
     
     Intersection in = ray.intersection;
     Point3D p = in.point;
