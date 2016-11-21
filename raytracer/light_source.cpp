@@ -37,7 +37,7 @@ void PointLight::shade( Ray3D& ray ) {
                       // Ks * specular * specularColor, 1.0);
    //////////////////////////////////////////////////////////////
    
-    double Ka = 0.2;
+    double Ka = 0.0;
     double Kd = 0.2;
     double Ks = 0.2; 
     

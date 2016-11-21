@@ -29,7 +29,7 @@ bool UnitSquare::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 	Vector3D modelDir = worldToModel * ray.dir;
 
 	Vector3D normal = Vector3D(0,0,1);
-	Point3D center =Point3D(0,0,0);
+	Point3D center = Point3D(0,0,0);
 	if (modelDir.dot(normal) == 0) {
 		return false;
 	} else {
@@ -37,13 +37,14 @@ bool UnitSquare::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 		Point3D intersect = modelOrigin + lambda*modelDir;
 		if (intersect[0] <= 0.5	&& intersect[0] >= -0.5
 			&& intersect[1] <= 0.5 && intersect[1] >= -0.5) {
-			if (ray.intersection.none || ray.intersection.t_value > lambda) { 
+			if (ray.intersection.none || lambda < ray.intersection.t_value) { 
 				ray.intersection.point = intersect;
 				ray.intersection.normal = normal;
 				ray.intersection.none = false;
 				ray.intersection.t_value = lambda;
+                return true;
 			}
-			return true;
+			return false;
 		}
 	}
 
@@ -81,12 +82,15 @@ bool UnitSphere::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 			return false;
 		} else {
 			double minLambda = std::min(lambda1, lambda2);
-			ray.intersection.point = modelToWorld * (modelOrigin + minLambda*modelDir);
-			ray.intersection.normal = modelToWorld * (((modelOrigin + minLambda*modelDir) + (modelOrigin + minLambda*modelDir)) - center);
-			ray.intersection.normal.normalize();
-			ray.intersection.none = false;
-			ray.intersection.t_value = minLambda;
-			return true;
+			if (ray.intersection.none || minLambda < ray.intersection.t_value) { 
+                ray.intersection.point = modelToWorld * (modelOrigin + minLambda*modelDir);
+                ray.intersection.normal = modelToWorld * (((modelOrigin + minLambda*modelDir) + (modelOrigin + minLambda*modelDir)) - center);
+                ray.intersection.normal.normalize();
+                ray.intersection.none = false;
+                ray.intersection.t_value = minLambda;
+                return true;
+			}
+			return false;
 		}
 	}
 	
