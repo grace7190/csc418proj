@@ -255,8 +255,8 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 			// shadeRay(ray) to generate pixel colour. 	
 			
 			Ray3D ray;
-			ray.origin = origin + (viewToWorld*imagePlane);
-			ray.dir = ray.origin - origin;
+			ray.origin = viewToWorld*imagePlane;
+			ray.dir = ray.origin - viewToWorld*origin;
             ray.dir.normalize();
 
 			Colour col = shadeRay(ray); 
