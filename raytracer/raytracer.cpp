@@ -187,7 +187,19 @@ void Raytracer::computeShading( Ray3D& ray ) {
 
 		// Implement shadows here if needed.
 
-		curLight->light->shade(ray);
+		Point3D p = ray.intersection.point; // point on surface
+        Vector3D s = curLight->light->get_position() - p; // vector towards light
+        s.normalize();
+        p = p + 0.0001*s;
+        Ray3D light_ray = Ray3D(p, s);
+        traverseScene(_root, light_ray);
+        if (light_ray.intersection.none) {
+            curLight->light->shade(ray);
+        } else {
+        	Colour col(0.0, 0.0, 44.0); 
+        	ray.col = col;
+            //blu
+        }
 		curLight = curLight->next;
 	}
 }
@@ -310,7 +322,7 @@ int main(int argc, char* argv[])
 	
 	// Apply some transformations to the unit square.
 	double factor1[3] = { 1.0, 2.0, 1.0 };
-	double factor2[3] = { 6.0, 6.0, 6.0 };
+	double factor2[3] = { 36.0, 36.0, 36.0 };
 	raytracer.translate(sphere, Vector3D(0, 0, -5));	
 	raytracer.rotate(sphere, 'x', -45); 
 	raytracer.rotate(sphere, 'z', 45); 

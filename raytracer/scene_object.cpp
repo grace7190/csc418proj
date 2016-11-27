@@ -34,12 +34,19 @@ bool UnitSquare::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 		return false;
 	} else {
 		double lambda = (center - modelOrigin).dot(normal) / modelDir.dot(normal);
+		if (lambda < 0.0) {
+			return false;
+		}
 		Point3D intersect = modelOrigin + lambda*modelDir;
 		if (intersect[0] <= 0.5	&& intersect[0] >= -0.5
 			&& intersect[1] <= 0.5 && intersect[1] >= -0.5) {
 			if (ray.intersection.none || lambda < ray.intersection.t_value) { 
-				ray.intersection.point = intersect;
-				ray.intersection.normal = normal;
+				ray.intersection.point = modelToWorld*intersect;
+				ray.intersection.normal = transNorm(worldToModel, normal);
+				// ray.intersection.normal = transNorm(modelToWorld, normal);
+				// ray.intersection.normal = modelToWorld*normal;
+				// ??? ^^^ WHICH ONE ???
+				ray.intersection.normal.normalize();
 				ray.intersection.none = false;
 				ray.intersection.t_value = lambda;
                 return true;
@@ -71,20 +78,25 @@ bool UnitSphere::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 	double B = (modelOrigin - center).dot(modelDir);
 	double C = (modelOrigin - center).dot(modelOrigin - center) - 1;
 	double D = B*B - A*C;
-	// std::cout << "A: " << A << "  B: " << B << "  C: " << C << "  D: " << D << "\n";
 
 	if (D < 0) {
 		return false;
 	} else {
-		double lambda1 = (-2*B + pow(D, 0.5)) / 2*A;
-		double lambda2 = (-2*B - pow(D, 0.5)) / 2*A;
+		double lambda1 = (-B + pow(D, 0.5)) / A;
+		double lambda2 = (-B - pow(D, 0.5)) / A;
 		if (lambda1 < 0.0 && lambda2 < 0.0) {
 			return false;
 		} else {
-			double minLambda = std::min(lambda1, lambda2);
-			if (ray.intersection.none || minLambda < ray.intersection.t_value) { 
-                ray.intersection.point = modelToWorld * (modelOrigin + minLambda*modelDir);
-                ray.intersection.normal = modelToWorld * (((modelOrigin + minLambda*modelDir) + (modelOrigin + minLambda*modelDir)) - center);
+			double minLambda; // Closest non-negative intersection
+			if (lambda1 > 0.0 && lambda2 > 0.0) {
+				minLambda = std::min(lambda1, lambda2);
+			} else {
+				minLambda = std::max(lambda1,lambda2);	
+			}
+			if (ray.intersection.none || minLambda < ray.intersection.t_value) {
+				Point3D modelIntersection = modelOrigin + minLambda*modelDir;
+                ray.intersection.point = modelToWorld * modelIntersection;
+                ray.intersection.normal = transNorm(worldToModel, (modelIntersection - center));
                 ray.intersection.normal.normalize();
                 ray.intersection.none = false;
                 ray.intersection.t_value = minLambda;
