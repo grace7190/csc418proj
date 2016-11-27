@@ -25,6 +25,7 @@ bool UnitSquare::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 	//
 	// HINT: Remember to first transform the ray into object space  
 	// to simplify the intersection test.
+    
 	Point3D modelOrigin = worldToModel * ray.origin;
 	Vector3D modelDir = worldToModel * ray.dir;
 
@@ -43,9 +44,6 @@ bool UnitSquare::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 			if (ray.intersection.none || lambda < ray.intersection.t_value) { 
 				ray.intersection.point = modelToWorld*intersect;
 				ray.intersection.normal = transNorm(worldToModel, normal);
-				// ray.intersection.normal = transNorm(modelToWorld, normal);
-				// ray.intersection.normal = modelToWorld*normal;
-				// ??? ^^^ WHICH ONE ???
 				ray.intersection.normal.normalize();
 				ray.intersection.none = false;
 				ray.intersection.t_value = lambda;
@@ -70,6 +68,7 @@ bool UnitSphere::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 	// HINT: Remember to first transform the ray into object space  
 	// to simplify the intersection test.
 	// std::cout << "Origin: " << ray.origin << "  Dir: " << ray.dir << "\n";
+    
 	Point3D modelOrigin = worldToModel * ray.origin;
 	Vector3D modelDir = worldToModel * ray.dir;
 

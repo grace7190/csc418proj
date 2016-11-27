@@ -196,9 +196,9 @@ void Raytracer::computeShading( Ray3D& ray ) {
         if (light_ray.intersection.none) {
             curLight->light->shade(ray);
         } else {
-        	Colour col(0.0, 0.0, 44.0); 
+        	Colour col(0.0, 0.0, 25.0); //blue for testing
         	ray.col = col;
-            //blu
+            
         }
 		curLight = curLight->next;
 	}
@@ -225,7 +225,10 @@ void Raytracer::flushPixelBuffer( char *file_name ) {
 	delete _bbuffer;
 }
 
-Colour Raytracer::shadeRay( Ray3D& ray ) {
+Colour Raytracer::shadeRay( Ray3D& ray, int max_depth) {
+    if (max_depth <= 0) {
+        return Colour(0.0, 0.0, 0.0); 
+    }
 	Colour col(0.0, 0.0, 0.0); 
 	traverseScene(_root, ray); 
 	
@@ -234,10 +237,15 @@ Colour Raytracer::shadeRay( Ray3D& ray ) {
 	if (!ray.intersection.none) {
 		computeShading(ray); 
 		col = ray.col;  
-	}
-
+        
 	// You'll want to call shadeRay recursively (with a different ray, 
-	// of course) here to implement reflection/refraction effects.  
+	// of course) here to implement reflection/refraction effects. 
+        Vector3D reflectV = 2*(ray.intersection.normal.dot(ray.dir))*ray.dir - ray.intersection.normal;
+        reflectV.normalize();
+        Ray3D reflectedRay(ray.intersection.point+0.001*reflectV, reflectV); 
+        col = col + max_depth/3.0*shadeRay(reflectedRay, max_depth-1);
+        col.clamp();
+	}
 
 	return col; 
 }	
@@ -271,7 +279,7 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 			ray.dir = ray.origin - viewToWorld*origin;
             ray.dir.normalize();
 
-			Colour col = shadeRay(ray); 
+			Colour col = shadeRay(ray, 2); 
 
 			_rbuffer[i*width+j] = int(col[0]*255);
 			_gbuffer[i*width+j] = int(col[1]*255);
@@ -321,15 +329,16 @@ int main(int argc, char* argv[])
 	SceneDagNode* plane = raytracer.addObject( new UnitSquare(), &jade );
 	
 	// Apply some transformations to the unit square.
-	double factor1[3] = { 1.0, 2.0, 1.0 };
-	double factor2[3] = { 36.0, 36.0, 36.0 };
-	raytracer.translate(sphere, Vector3D(0, 0, -5));	
+	double factor1[3] = { 1.0, 1.5, 1.0 };
+	double factor2[3] = { 6.0, 6.0, 6.0 };
+	raytracer.translate(sphere, Vector3D(0, 0, -6));	
 	raytracer.rotate(sphere, 'x', -45); 
 	raytracer.rotate(sphere, 'z', 45); 
 	raytracer.scale(sphere, Point3D(0, 0, 0), factor1);
 
 	raytracer.translate(plane, Vector3D(0, 0, -7));	
-	raytracer.rotate(plane, 'z', 45); 
+    raytracer.rotate(plane, 'x', -35);
+	//raytracer.rotate(plane, 'z', 45); 
 	raytracer.scale(plane, Point3D(0, 0, 0), factor2);
 
 	// Render the scene, feel free to make the image smaller for
