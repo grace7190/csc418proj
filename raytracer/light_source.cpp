@@ -49,7 +49,7 @@ void PointLight::shade( Ray3D& ray ) {
     double lam = std::max((in.normal).dot(s),0.0);
     double spec = 0.0;
     if (lam > 0.0) {
-        Vector3D R = 2.0*(s.dot(in.normal)*in.normal - s);
+        Vector3D R = 2.0*(s.dot(in.normal)*in.normal) - s;
         R.normalize();
         Vector3D V = -ray.dir;
         spec = pow(std::max(R.dot(V), 0.0), ma->specular_exp);
