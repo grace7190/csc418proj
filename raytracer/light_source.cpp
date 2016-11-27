@@ -37,28 +37,30 @@ void PointLight::shade( Ray3D& ray ) {
                       // Ks * specular * specularColor, 1.0);
    //////////////////////////////////////////////////////////////
    
-    double Ka = 0.01;
-    double Kd = 0.2;
+    double Ka = 0.1;
+    double Kd = 1.0;
     double Ks = 1.0; 
     
     Intersection in = ray.intersection;
     Point3D p = in.point; //point on surface
     Vector3D s = _pos - p; //light vector
     Material *ma = in.mat;
-    
+    s.normalize(); 
     double lam = std::max((in.normal).dot(s),0.0);
     double spec = 0.0;
+    int shading = 1; 
     if (lam > 0.0) {
-        Vector3D R = 2.0*(s.dot(in.normal)*in.normal) - s;
-        R.normalize();
-        Vector3D V = -ray.dir;
-        spec = pow(std::max(R.dot(V), 0.0), ma->specular_exp);
-        //the next few lines work but are based on Blinn-Phong, not Phong
-        //https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_shading_model
-        // Vector3D halfDir = (s + ray.dir);
-        // halfDir.normalize();
-        // double specAngle = std::max(halfDir.dot(in.normal), 0.0);
-        // spec = pow(specAngle, ma->specular_exp);
+        if (shading == 0){ //Phong
+            Vector3D R = 2.0*(s.dot(in.normal)*in.normal) - s;
+            R.normalize();
+            Vector3D V = -ray.dir;
+            spec = pow(std::max(R.dot(V), 0.0), ma->specular_exp);
+        } else { //Blinn-Phong
+            Vector3D halfDir = (s + -ray.dir);
+            halfDir.normalize();
+            double specAngle = std::max(halfDir.dot(in.normal), 0.0);
+            spec = pow(specAngle, ma->specular_exp);
+        }
     }
     Colour co = (Ka*_col_ambient + Kd*lam*ma->diffuse + Ks*spec*ma->specular);
     co.clamp();
