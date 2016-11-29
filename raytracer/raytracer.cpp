@@ -189,16 +189,29 @@ void Raytracer::computeShading( Ray3D& ray ) {
 		// Implement shadows here if needed.
 
 		Point3D p = ray.intersection.point; // point on surface
-        Vector3D s = curLight->light->get_position() - p; // vector towards light
-        s.normalize();
-        p = p + 0.0001*s;
-        Ray3D light_ray = Ray3D(p, s);
-        traverseScene(_root, light_ray);
-        if (light_ray.intersection.none) {
-            ray.col = ray.col + curLight->light->shade(ray);
-        } else {
-        	Colour col(0.0, 0.0, 0.0); //not blue for testing
-        	ray.col = ray.col + col;
+
+		int x_off[] = {-1,2,1,-1,2,4,2,-1,0,-1,4,0,0,-3,2,-3,0,4,-4,-3};
+		int y_off[] = {2,-2,3,-3,-4,-2,1,-1,-1,1,1,1,1,4,0,0,-3,-4,-3,1};
+		int z_off[] = {-3,-4,2,0,2,-1,1,-3,4,-4,2,1,-4,0,-3,3,2,4,1,4};
+
+		int i;
+		for (i = 0; i < 19; i++) {
+			Point3D offset = Point3D(
+				curLight->light->get_position()[0]+x_off[i]/10.0,
+				curLight->light->get_position()[1]+y_off[i]/10.0,
+				curLight->light->get_position()[2]+z_off[i]/10.0);
+
+			Vector3D s = offset - p; // vector towards light
+			s.normalize();
+			p = p + 0.0001*s;
+			Ray3D light_ray = Ray3D(p, s);
+			traverseScene(_root, light_ray);
+			if (light_ray.intersection.none) {
+				ray.col = ray.col + 0.05*curLight->light->shade(ray);
+			} else {
+        		Colour col(0.0, 0.0, 0.0); //not blue for testing
+        		ray.col = ray.col + col;
+        	}
         }
 		curLight = curLight->next;
 		numLights++;
@@ -326,8 +339,8 @@ int main(int argc, char* argv[])
 	// Defines a point light source.
 	raytracer.addLightSource( new PointLight(Point3D(0, 0, 5), 
 				Colour(0.9, 0.9, 0.9) ) );
-	raytracer.addLightSource( new PointLight(Point3D(1, 2, -1), 
-				Colour(0.9, 0.9, 0.9) ) );
+	// raytracer.addLightSource( new PointLight(Point3D(1, 2, -1), 
+	// 			Colour(0.9, 0.9, 0.9) ) );
 
 	// Add a unit square into the scene with material mat.
 	SceneDagNode* sphere = raytracer.addObject( new UnitSphere(), &gold );
@@ -358,3 +371,9 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+// TODO:
+// 	. under-reflection??
+// 	. fix shadows
+// ----------------------	
+// 	. ray marching..??
+// 	. particle effects!
