@@ -32,19 +32,21 @@ void PointLight::shade( Ray3D& ray ) {
     double lam = std::max((in.normal).dot(s),0.0);
     s.normalize();
     double spec = 0.0;
-    int shading = 1; 
+    // int shading = 1; 
     if (lam > 0.0) {
-        if (shading == 0){ //Phong
-            Vector3D R = 2.0*(s.dot(in.normal)*in.normal) - s;
-            R.normalize();
-            Vector3D V = -ray.dir;
-            spec = pow(std::max(R.dot(V), 0.0), ma->specular_exp);
-        } else { //Blinn-Phong
-            Vector3D halfDir = (s + -ray.dir);
-            halfDir.normalize();
-            double specAngle = std::max(halfDir.dot(in.normal), 0.0);
-            spec = pow(specAngle, ma->specular_exp);
-        }
+        // if (shading == 0){ //Phong
+        //     Vector3D R = 2.0*(s.dot(in.normal)*in.normal) - s;
+        //     R.normalize();
+        //     Vector3D V = -ray.dir;
+        //     spec = pow(std::max(R.dot(V), 0.0), ma->specular_exp);
+        // } else {
+        
+        //Blinn-Phong
+        Vector3D halfDir = (s + -ray.dir);
+        halfDir.normalize();
+        double specAngle = std::max(halfDir.dot(in.normal), 0.0);
+        spec = pow(specAngle, ma->specular_exp);
+        // }
     }
     Colour co = (Ka*_col_ambient + Kd*lam*ma->diffuse + Ks*spec*ma->specular);
     co.clamp();
