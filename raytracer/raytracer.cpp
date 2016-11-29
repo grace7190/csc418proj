@@ -181,6 +181,7 @@ void Raytracer::traverseScene( SceneDagNode* node, Ray3D& ray, const Matrix4x4& 
 
 void Raytracer::computeShading( Ray3D& ray ) {
 	LightListNode* curLight = _lightSource;
+	int numLights = 0;
 	for (;;) {
 		if (curLight == NULL) break;
 		// Each lightSource provides its own shading function.
@@ -194,14 +195,16 @@ void Raytracer::computeShading( Ray3D& ray ) {
         Ray3D light_ray = Ray3D(p, s);
         traverseScene(_root, light_ray);
         if (light_ray.intersection.none) {
-            curLight->light->shade(ray);
+            ray.col = ray.col + curLight->light->shade(ray);
         } else {
         	Colour col(0.0, 0.0, 0.0); //not blue for testing
-        	ray.col = col;
-            
+        	ray.col = ray.col + col;
         }
 		curLight = curLight->next;
+		numLights++;
 	}
+	ray.col = (1.0/numLights)*ray.col;
+	ray.col.clamp();
 }
 
 void Raytracer::initPixelBuffer() {
@@ -322,6 +325,8 @@ int main(int argc, char* argv[])
 
 	// Defines a point light source.
 	raytracer.addLightSource( new PointLight(Point3D(0, 0, 5), 
+				Colour(0.9, 0.9, 0.9) ) );
+	raytracer.addLightSource( new PointLight(Point3D(1, 2, -1), 
 				Colour(0.9, 0.9, 0.9) ) );
 
 	// Add a unit square into the scene with material mat.

@@ -11,7 +11,7 @@
 #include <cmath>
 #include "light_source.h"
 
-void PointLight::shade( Ray3D& ray ) {
+Colour PointLight::shade( Ray3D& ray ) {
 	// TODO: implement this function to fill in values for ray.col 
 	// using phong shading.  Make sure your vectors are normalized, and
 	// clamp colour values to 1.0.
@@ -20,8 +20,8 @@ void PointLight::shade( Ray3D& ray ) {
 	// is available.  So be sure that traverseScene() is called on the ray 
 	// before this function.  
    
-    double Ka = 0.1;
-    double Kd = 0.2;
+    double Ka = 0.2;
+    double Kd = 1.0;
     double Ks = 0.8; 
     
     Intersection in = ray.intersection;
@@ -40,7 +40,7 @@ void PointLight::shade( Ray3D& ray ) {
         //     Vector3D V = -ray.dir;
         //     spec = pow(std::max(R.dot(V), 0.0), ma->specular_exp);
         // } else {
-        
+
         //Blinn-Phong
         Vector3D halfDir = (s + -ray.dir);
         halfDir.normalize();
@@ -50,7 +50,7 @@ void PointLight::shade( Ray3D& ray ) {
     }
     Colour co = (Ka*_col_ambient + Kd*lam*ma->diffuse + Ks*spec*ma->specular);
     co.clamp();
-    ray.col = co;
+    return co;
     
 }
 
