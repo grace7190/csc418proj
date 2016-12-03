@@ -276,30 +276,38 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 	initPixelBuffer();
 	viewToWorld = initInvViewMatrix(eye, view, up);
 
+	double i_off[] = {0.0, 0.2, 0.15, -0.31, 0.42, 0.34, 0.22, -0.11, 0.05};
+	double j_off[] = {0.0, -0.2, 0.3, -0.3, -0.4, -0.12, 0.41, -0.1, 0.15};
+
 	// Construct a ray for each pixel.
 	for (int i = 0; i < _scrHeight; i++) {
 		for (int j = 0; j < _scrWidth; j++) {
 			// Sets up ray origin and direction in view space, 
 			// image plane is at z = -1.
 			Point3D origin(0, 0, 0);
-			Point3D imagePlane;
-			imagePlane[0] = (-double(width)/2 + 0.5 + j)/factor;
-			imagePlane[1] = (-double(height)/2 + 0.5 + i)/factor;
-			imagePlane[2] = -1;
+			Colour averageColour = Colour(0,0,0);
 
-			// TODO: Convert ray to world space and call 
-			// shadeRay(ray) to generate pixel colour. 	
-			
-			Ray3D ray;
-			ray.origin = viewToWorld*imagePlane;
-			ray.dir = ray.origin - viewToWorld*origin;
-            ray.dir.normalize();
+			for (int offset = 0; offset < sizeof(i_off)/sizeof(i_off[0]); offset++){
 
-			Colour col = shadeRay(ray, 2); 
+				Point3D imagePlane;
+				imagePlane[0] = (-double(width)/2 + 0.5 + j + j_off[offset])/factor;
+				imagePlane[1] = (-double(height)/2 + 0.5 + i + i_off[offset])/factor;
+				imagePlane[2] = -1;
 
-			_rbuffer[i*width+j] = int(col[0]*255);
-			_gbuffer[i*width+j] = int(col[1]*255);
-			_bbuffer[i*width+j] = int(col[2]*255);
+				Ray3D ray;
+				ray.origin = viewToWorld*imagePlane;
+				ray.dir = ray.origin - viewToWorld*origin;
+				ray.dir.normalize();
+
+				averageColour = averageColour + shadeRay(ray, 2);
+			}
+
+			averageColour = (1.0/9.0) * averageColour;
+			averageColour.clamp();
+
+			_rbuffer[i*width+j] = int(averageColour[0]*255);
+			_gbuffer[i*width+j] = int(averageColour[1]*255);
+			_bbuffer[i*width+j] = int(averageColour[2]*255);
 		}
 	}
 
