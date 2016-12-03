@@ -98,6 +98,9 @@ public:
 
 	// Apply scaling about a fixed point origin.
 	void scale( SceneDagNode* node, Point3D origin, double factor[3] );
+
+	// Rotate eye about focus point, with random x,y,z
+	void rotateAboutFocus( Point3D& eye, Vector3D& view, Point3D focus );
 	
 private:
 	// Allocates and initializes the pixel buffer for rendering, you

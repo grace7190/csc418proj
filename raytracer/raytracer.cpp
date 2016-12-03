@@ -129,6 +129,59 @@ void Raytracer::scale( SceneDagNode* node, Point3D origin, double factor[3] ) {
 	node->invtrans = scale*node->invtrans; 
 }
 
+void Raytracer::rotateAboutFocus( Point3D& eye, Vector3D& view, Point3D focus ) {
+	double x_angle = rand() % 2 - 1;
+	double y_angle = rand() % 2 - 1;
+	double z_angle = rand() % 2 - 1;
+	double toRadian = 2*M_PI/360.0;
+
+	// Move origin to focus point
+	Matrix4x4 translation;
+	translation[0][3] = x_angle;
+	translation[1][3] = y_angle;
+	translation[2][3] = z_angle;
+	eye = translation*eye;
+	view = focus - eye;
+	
+	// // Rotate eye about focus-origin, with random x,y,z
+	// Matrix4x4 rotation;
+	// // x axis
+	// rotation[0][0] = 1;
+	// rotation[1][1] = cos(x_angle*toRadian);
+	// rotation[1][2] = -sin(x_angle*toRadian);
+	// rotation[2][1] = sin(x_angle*toRadian);
+	// rotation[2][2] = cos(x_angle*toRadian);
+	// rotation[3][3] = 1;
+	// eye = rotation*eye;
+	// view = rotation*view;
+	// // y axis
+	// rotation[0][0] = cos(y_angle*toRadian);
+	// rotation[0][2] = sin(y_angle*toRadian);
+	// rotation[1][1] = 1;
+	// rotation[2][0] = -sin(y_angle*toRadian);
+	// rotation[2][2] = cos(y_angle*toRadian);
+	// rotation[3][3] = 1;
+	// eye = rotation*eye;
+	// view = rotation*view;
+	// // z axis
+	// rotation[0][0] = cos(z_angle*toRadian);
+	// rotation[0][1] = -sin(z_angle*toRadian);
+	// rotation[1][0] = sin(z_angle*toRadian);
+	// rotation[1][1] = cos(z_angle*toRadian);
+	// rotation[2][2] = 1;
+	// rotation[3][3] = 1;
+	// eye = rotation*eye;
+	// view = rotation*view;
+
+	// // Move origin back to origin
+	// translation[0][3] = focus[0];
+	// translation[1][3] = focus[1];
+	// translation[2][3] = focus[2];
+	// eye = translation*eye;
+	// view = rotation*view;
+
+}
+
 Matrix4x4 Raytracer::initInvViewMatrix( Point3D eye, Vector3D view, 
 		Vector3D up ) {
 	Matrix4x4 mat; 
@@ -352,15 +405,21 @@ int main(int argc, char* argv[])
 
 	// Add a unit square into the scene with material mat.
 	SceneDagNode* sphere = raytracer.addObject( new UnitSphere(), &gold );
+	SceneDagNode* sphere2 = raytracer.addObject( new UnitSphere(), &jade );
 	SceneDagNode* plane = raytracer.addObject( new UnitSquare(), &jade );
 	
 	// Apply some transformations to the unit square.
-	double factor1[3] = { 1.0, 1.5, 1.0 };
+	double factor1[3] = { 0.5, 0.5, 0.5 };
 	double factor2[3] = { 6.0, 6.0, 6.0 };
 	raytracer.translate(sphere, Vector3D(0, 0, -6));	
 	raytracer.rotate(sphere, 'x', -45); 
 	raytracer.rotate(sphere, 'z', 45); 
 	raytracer.scale(sphere, Point3D(0, 0, 0), factor1);
+
+	raytracer.translate(sphere2, Vector3D(-2, -1, -3));	
+	raytracer.rotate(sphere2, 'x', -25); 
+	raytracer.rotate(sphere2, 'z', 45); 
+	raytracer.scale(sphere2, Point3D(0, 0, 0), factor1);	
 
 	raytracer.translate(plane, Vector3D(0, 0, -7));	
     raytracer.rotate(plane, 'x', -35);
@@ -369,12 +428,31 @@ int main(int argc, char* argv[])
 
 	// Render the scene, feel free to make the image smaller for
 	// testing purposes.	
-	raytracer.render(width, height, eye, view, up, fov, "view1.bmp");
+	// raytracer.render(width, height, eye, view, up, fov, "view1.bmp");
 	
 	// Render it from a different point of view.
 	Point3D eye2(4, 2, 1);
 	Vector3D view2(-4, -2, -6);
-	raytracer.render(width, height, eye2, view2, up, fov, "view2.bmp");
+	Point3D focal (0, 0, -6);
+
+	char* names[25] = {"view2_1.bmp", "view2_2.bmp", "view2_3.bmp", "view2_4.bmp", 
+	"view2_5.bmp", "view2_6.bmp", "view2_7.bmp", "view2_8.bmp",
+	"view2_9.bmp", "view2_10.bmp", "view2_11.bmp", "view2_12.bmp",
+	"view2_13.bmp", "view2_14.bmp", "view2_15.bmp", "view2_16.bmp",
+	"view2_17.bmp", "view2_18.bmp", "view2_19.bmp", "view2_20.bmp",
+	"view2_21.bmp", "view2_22.bmp", "view2_23.bmp", "view2_24.bmp"};
+
+
+	for (int i = 0; i<24; i++){
+		std::cout << i << "\n";
+		Point3D eye2(4, 2, 1);
+		Vector3D view2(-4, -2, -6);
+		raytracer.rotateAboutFocus(eye2, view2, focal);
+		raytracer.render(width, height, eye2, view2, up, fov, names[i]);
+	}
+
+
+	// raytracer.render(width, height, eye2, view2, up, fov, "view2.bmp");
 	
 	return 0;
 }
