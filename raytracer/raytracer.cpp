@@ -129,57 +129,17 @@ void Raytracer::scale( SceneDagNode* node, Point3D origin, double factor[3] ) {
 	node->invtrans = scale*node->invtrans; 
 }
 
-void Raytracer::rotateAboutFocus( Point3D& eye, Vector3D& view, Point3D focus ) {
-	double x_angle = rand() % 2 - 1;
-	double y_angle = rand() % 2 - 1;
-	double z_angle = rand() % 2 - 1;
-	double toRadian = 2*M_PI/360.0;
+void Raytracer::DOFSampling( Point3D& eye, Vector3D& view, Point3D focus ) {
+	double x_change = rand() % 2 - 1;
+	double y_change = rand() % 2 - 1;
+	double z_change = rand() % 2 - 1;
 
-	// Move origin to focus point
 	Matrix4x4 translation;
-	translation[0][3] = x_angle;
-	translation[1][3] = y_angle;
-	translation[2][3] = z_angle;
+	translation[0][3] = x_change;
+	translation[1][3] = y_change;
+	translation[2][3] = z_change;
 	eye = translation*eye;
 	view = focus - eye;
-	
-	// // Rotate eye about focus-origin, with random x,y,z
-	// Matrix4x4 rotation;
-	// // x axis
-	// rotation[0][0] = 1;
-	// rotation[1][1] = cos(x_angle*toRadian);
-	// rotation[1][2] = -sin(x_angle*toRadian);
-	// rotation[2][1] = sin(x_angle*toRadian);
-	// rotation[2][2] = cos(x_angle*toRadian);
-	// rotation[3][3] = 1;
-	// eye = rotation*eye;
-	// view = rotation*view;
-	// // y axis
-	// rotation[0][0] = cos(y_angle*toRadian);
-	// rotation[0][2] = sin(y_angle*toRadian);
-	// rotation[1][1] = 1;
-	// rotation[2][0] = -sin(y_angle*toRadian);
-	// rotation[2][2] = cos(y_angle*toRadian);
-	// rotation[3][3] = 1;
-	// eye = rotation*eye;
-	// view = rotation*view;
-	// // z axis
-	// rotation[0][0] = cos(z_angle*toRadian);
-	// rotation[0][1] = -sin(z_angle*toRadian);
-	// rotation[1][0] = sin(z_angle*toRadian);
-	// rotation[1][1] = cos(z_angle*toRadian);
-	// rotation[2][2] = 1;
-	// rotation[3][3] = 1;
-	// eye = rotation*eye;
-	// view = rotation*view;
-
-	// // Move origin back to origin
-	// translation[0][3] = focus[0];
-	// translation[1][3] = focus[1];
-	// translation[2][3] = focus[2];
-	// eye = translation*eye;
-	// view = rotation*view;
-
 }
 
 Matrix4x4 Raytracer::initInvViewMatrix( Point3D eye, Vector3D view, 
@@ -364,7 +324,37 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 		}
 	}
 
-	flushPixelBuffer(fileName);
+	// flushPixelBuffer(fileName);
+}
+
+void Raytracer::averageImage(unsigned char* rbuffer2, unsigned char* gbuffer2, unsigned char* bbuffer2,
+	Point3D focal, int width, int height, Vector3D up, double fov){
+
+	char* names[25] = {"view2_1.bmp", "view2_2.bmp", "view2_3.bmp", "view2_4.bmp", 
+	"view2_5.bmp", "view2_6.bmp", "view2_7.bmp", "view2_8.bmp",
+	"view2_9.bmp", "view2_10.bmp", "view2_11.bmp", "view2_12.bmp",
+	"view2_13.bmp", "view2_14.bmp", "view2_15.bmp", "view2_16.bmp",
+	"view2_17.bmp", "view2_18.bmp", "view2_19.bmp", "view2_20.bmp",
+	"view2_21.bmp", "view2_22.bmp", "view2_23.bmp", "view2_24.bmp"};
+
+	for (int i = 0; i<24; i++){
+		std::cout << i << "\n";
+		Point3D eye2(4, 2, 1);
+		Vector3D view2(-4, -2, -6);
+		DOFSampling(eye2, view2, focal);
+		render(width, height, eye2, view2, up, fov, names[i]);
+		for (int j=0; j<( height*width-1 ); j++){
+			rbuffer2[j] += _rbuffer[j]/24.0;
+			gbuffer2[j] += _gbuffer[j]/24.0;
+			bbuffer2[j] += _bbuffer[j]/24.0;
+		}
+	}
+	for (int j=0; j<( height*width-1 ); j++){
+		_rbuffer[j] = int(rbuffer2[j]);
+		_gbuffer[j] = int(gbuffer2[j]);
+		_bbuffer[j] = int(bbuffer2[j]);
+	}
+	flushPixelBuffer("avView2.bmp");
 }
 
 int main(int argc, char* argv[])
@@ -431,25 +421,27 @@ int main(int argc, char* argv[])
 	// raytracer.render(width, height, eye, view, up, fov, "view1.bmp");
 	
 	// Render it from a different point of view.
-	Point3D eye2(4, 2, 1);
-	Vector3D view2(-4, -2, -6);
+	// Point3D eye2(4, 2, 1);
+	// Vector3D view2(-4, -2, -6);
 	Point3D focal (0, 0, -6);
 
-	char* names[25] = {"view2_1.bmp", "view2_2.bmp", "view2_3.bmp", "view2_4.bmp", 
-	"view2_5.bmp", "view2_6.bmp", "view2_7.bmp", "view2_8.bmp",
-	"view2_9.bmp", "view2_10.bmp", "view2_11.bmp", "view2_12.bmp",
-	"view2_13.bmp", "view2_14.bmp", "view2_15.bmp", "view2_16.bmp",
-	"view2_17.bmp", "view2_18.bmp", "view2_19.bmp", "view2_20.bmp",
-	"view2_21.bmp", "view2_22.bmp", "view2_23.bmp", "view2_24.bmp"};
-
-
-	for (int i = 0; i<24; i++){
-		std::cout << i << "\n";
-		Point3D eye2(4, 2, 1);
-		Vector3D view2(-4, -2, -6);
-		raytracer.rotateAboutFocus(eye2, view2, focal);
-		raytracer.render(width, height, eye2, view2, up, fov, names[i]);
+	unsigned char* rbuffer2;
+	unsigned char* gbuffer2;
+	unsigned char* bbuffer2;
+	int numbytes = width * height * sizeof(unsigned char);
+	rbuffer2 = new unsigned char[numbytes];
+	gbuffer2 = new unsigned char[numbytes];
+	bbuffer2 = new unsigned char[numbytes];
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			rbuffer2[i*width+j] = 0;
+			gbuffer2[i*width+j] = 0;
+			bbuffer2[i*width+j] = 0;
+		}
 	}
+
+	raytracer.averageImage(rbuffer2, gbuffer2, bbuffer2, focal, width, height, up, fov);
+
 
 
 	// raytracer.render(width, height, eye2, view2, up, fov, "view2.bmp");

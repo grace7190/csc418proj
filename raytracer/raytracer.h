@@ -100,7 +100,11 @@ public:
 	void scale( SceneDagNode* node, Point3D origin, double factor[3] );
 
 	// Rotate eye about focus point, with random x,y,z
-	void rotateAboutFocus( Point3D& eye, Vector3D& view, Point3D focus );
+	void DOFSampling( Point3D& eye, Vector3D& view, Point3D focus );
+
+	// Do the average image thing
+	void averageImage(unsigned char* rb, unsigned char* gb, unsigned char* bb, 
+		Point3D focal, int width, int height, Vector3D up, double fov);
 	
 private:
 	// Allocates and initializes the pixel buffer for rendering, you
