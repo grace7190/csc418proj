@@ -130,9 +130,9 @@ void Raytracer::scale( SceneDagNode* node, Point3D origin, double factor[3] ) {
 }
 
 void Raytracer::DOFSampling( Point3D& eye, Vector3D& view, Point3D focus ) {
-	double x_change = rand() % 2 - 1;
-	double y_change = rand() % 2 - 1;
-	double z_change = rand() % 2 - 1;
+	double x_change = (rand() % 20 - 10) /40.0;
+	double y_change = (rand() % 20 - 10) /40.0;
+	double z_change = (rand() % 20 - 10) /40.0;
 
 	Matrix4x4 translation;
 	translation[0][3] = x_change;
@@ -203,16 +203,20 @@ void Raytracer::computeShading( Ray3D& ray ) {
 
 		Point3D p = ray.intersection.point; // point on surface
 
-		int x_off[] = {-1,2,1,-1,2,4,2,-1,0,-1,4,0,0,-3,2,-3,0,4,-4,-3};
-		int y_off[] = {2,-2,3,-3,-4,-2,1,-1,-1,1,1,1,1,4,0,0,-3,-4,-3,1};
-		int z_off[] = {-3,-4,2,0,2,-1,1,-3,4,-4,2,1,-4,0,-3,3,2,4,1,4};
+		// int x_off[] = {-1,2,1,-1,2,4,2,-1,0,-1,4,0,0,-3,2,-3,0,4,-4,-3};
+		// int y_off[] = {2,-2,3,-3,-4,-2,1,-1,-1,1,1,1,1,4,0,0,-3,-4,-3,1};
+		// int z_off[] = {-3,-4,2,0,2,-1,1,-3,4,-4,2,1,-4,0,-3,3,2,4,1,4};
 
 		int i;
 		for (i = 0; i < 19; i++) {
+            double x_change = (rand() % 20 - 10)/5.0;
+            double y_change = (rand() % 20 - 10)/5.0;
+            double z_change = (rand() % 20 - 10)/5.0;
+
 			Point3D offset = Point3D(
-				curLight->light->get_position()[0]+x_off[i]/10.0,
-				curLight->light->get_position()[1]+y_off[i]/10.0,
-				curLight->light->get_position()[2]+z_off[i]/10.0);
+				curLight->light->get_position()[0]+x_change/10.0,
+				curLight->light->get_position()[1]+y_change/10.0,
+				curLight->light->get_position()[2]+z_change/10.0);
 
 			Vector3D s = offset - p; // vector towards light
 			s.normalize();
@@ -229,7 +233,7 @@ void Raytracer::computeShading( Ray3D& ray ) {
 		curLight = curLight->next;
 		numLights++;
 	}
-	ray.col = (1.0/numLights)*ray.col;
+	//ray.col = (1.0/numLights)*ray.col;
 	ray.col.clamp();
 }
 
@@ -317,7 +321,9 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 
 	double i_off[] = {0.0, 0.2, 0.15, -0.31, 0.42, 0.34, 0.22, -0.11, 0.05};
 	double j_off[] = {0.0, -0.2, 0.3, -0.3, -0.4, -0.12, 0.41, -0.1, 0.15};
-
+    // double x_change = rand() % 4 - 2;
+    // double y_change = rand() % 4 - 2;
+    
 	// Construct a ray for each pixel.
 	for (int i = 0; i < _scrHeight; i++) {
 		for (int j = 0; j < _scrWidth; j++) {
@@ -327,7 +333,8 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 			Colour averageColour = Colour(0,0,0);
 
 			for (int offset = 0; offset < sizeof(i_off)/sizeof(i_off[0]); offset++){
-
+                double i_change = (rand() % 100 - 50)/100.0;
+                double j_change = (rand() % 100 - 50)/100.0;
 				Point3D imagePlane;
 				imagePlane[0] = (-double(width)/2 + 0.5 + j + j_off[offset])/factor;
 				imagePlane[1] = (-double(height)/2 + 0.5 + i + i_off[offset])/factor;
@@ -350,7 +357,7 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 		}
 	}
 
-	flushPixelBuffer(fileName);
+	//flushPixelBuffer(fileName);
 }
 
 void Raytracer::averageImage(unsigned char* rbuffer2, unsigned char* gbuffer2, unsigned char* bbuffer2,
@@ -358,15 +365,15 @@ void Raytracer::averageImage(unsigned char* rbuffer2, unsigned char* gbuffer2, u
 
 	for (int i = 0; i<24; i++){
 		std::cout << i << "\n";
-		Point3D eye2(4, 2, 1);
-		Vector3D view2(-4, -2, -6);
-		DOFSampling(eye2, view2, focal);
+        Point3D eye(0, 0, 1);
+        Vector3D view(0.3, 0, -1);
+		DOFSampling(eye, view, focal);
         char filename[] = " ";
-		render(width, height, eye2, view2, up, fov, filename);
+		render(width, height, eye, view, up, fov, filename);
 		for (int j=0; j<( height*width-1 ); j++){
-			rbuffer2[j] += _rbuffer[j]/4.0;
-			gbuffer2[j] += _gbuffer[j]/4.0;
-			bbuffer2[j] += _bbuffer[j]/4.0;
+			rbuffer2[j] += _rbuffer[j]/24.0;
+			gbuffer2[j] += _gbuffer[j]/24.0;
+			bbuffer2[j] += _bbuffer[j]/24.0;
 		}
 	}
 	for (int j=0; j<( height*width-1 ); j++){
@@ -386,8 +393,8 @@ int main(int argc, char* argv[])
 	// change this if you're just implementing part one of the 
 	// assignment.  
 	Raytracer raytracer;
-	int width = 180; 
-	int height = 120; 
+	int width = 720; 
+	int height = 480; 
 
 	if (argc == 3) {
 		width = atoi(argv[1]);
@@ -396,9 +403,9 @@ int main(int argc, char* argv[])
 
 	// Camera parameters.
 	Point3D eye(0, 0, 1);
-	Vector3D view(0, 0, -1);
+	Vector3D view(0.3, 0, -1);
 	Vector3D up(0, 1, 0);
-	double fov = 60;
+	double fov = 80;
 
 	// Defines a material for shading.
 	Material gold( Colour(0.3, 0.3, 0.3), Colour(0.7516, 0.60648, 0.22648), 
@@ -415,37 +422,55 @@ int main(int argc, char* argv[])
 	Material bade( Colour(0, 0, 0), Colour(0.24, 0.14, 0.73), 
 		Colour(0.206228, 0.506228, 0.306228), 
 		19.8, 0.0, 0.0, 1.0 );
-
+    
+    Material pantone(Colour(27/255.0,34/255.0,46/255.0),
+                    Colour(145/255.0,167/255.0,208/255.0),
+                    Colour(246/255.0,202/255.0,204/255.0),
+                    160.0, 0.02, 1.35, 0.5); 
+                    //specexp reflection refraction alpha
+                    
+    Material flat_pantone(Colour(27/255.0,34/255.0,46/255.0),
+                    Colour(145/255.0,167/255.0,208/255.0),
+                    Colour(246/255.0,202/255.0,204/255.0),
+                    0.001, 0.0, 0.0, 1.0); 
         
 	// Defines a point light source.
-	raytracer.addLightSource( new PointLight(Point3D(0, 0, 5), 
-				Colour(0.9, 0.9, 0.9) ) );
-	// raytracer.addLightSource( new PointLight(Point3D(1, 2, -1), 
-	// 			Colour(0.9, 0.9, 0.9) ) );
+	raytracer.addLightSource( new PointLight(Point3D(-2, -2.2, 0), 
+				Colour(0.6, 0.6, 0.9) ) );
+    raytracer.addLightSource( new PointLight(Point3D(1.2, 2.1, -1), 
+	 			Colour(0.99, 0.92, 0.9) ) );
 
 	// Add a unit square into the scene with material mat.
-	SceneDagNode* sphere = raytracer.addObject( new UnitSquare(), &gold );
-	SceneDagNode* sphere2 = raytracer.addObject( new UnitSphere(), &bade );
-	SceneDagNode* plane = raytracer.addObject( new UnitSquare(), &jade );
-	
+	SceneDagNode* sphere = raytracer.addObject( new UnitSphere(), &pantone );
+	SceneDagNode* sphere2 = raytracer.addObject( new UnitSphere(), &pantone );
+    SceneDagNode* sphere3 = raytracer.addObject( new UnitSphere(), &pantone );
+    SceneDagNode* sphere4 = raytracer.addObject( new UnitSphere(), &pantone );
+	SceneDagNode* plane = raytracer.addObject( new UnitSquare(), &ultrav );
+    
 	// Apply some transformations to the unit square.
-	double factor0[3] = { 2.0, 2.0, 2.0 };
-	double factor1[3] = { 1.0, 0.5, 1.0 };
-	double factor2[3] = { 6.0, 6.0, 6.0 };
-	double factor3[3] = { 40.0, 40.0, 40.0 };
-	raytracer.translate(sphere, Vector3D(0, 0, -3));	
-	// raytracer.rotate(sphere, 'x', -45); 
-	// raytracer.rotate(sphere, 'z', 45); 
-	raytracer.scale(sphere, Point3D(0, 0, 0), factor0);
+	double factor1[3] = { 1.0, 1.0, 1.0 };
+	double factor2[3] = { 50.0, 50.0, 50.0 };
+	double factor3[3] = { 0.3, 0.3, 0.3 };
 
-	raytracer.translate(sphere2, Vector3D(0, 2, -5));	
-	raytracer.rotate(sphere2, 'x', -25); 
-	raytracer.rotate(sphere2, 'z', 45); 
-	raytracer.scale(sphere2, Point3D(0, 0, 0), factor1);	
+	//double factor3[3] = { 40.0, 40.0, 40.0 };
+    
+	raytracer.translate(sphere, Vector3D(0.2, -0.2, -3));	
+	raytracer.scale(sphere, Point3D(0, 0, 0), factor1);
 
-	raytracer.translate(plane, Vector3D(0, 0, -7));	
-    raytracer.rotate(plane, 'x', -35); 
+	raytracer.translate(sphere2, Vector3D(2, 1.5, -3.4));	
+	raytracer.scale(sphere2, Point3D(0, 0, 0), factor3);	
+    
+	raytracer.translate(sphere3, Vector3D(-2, 0.5, -3));	
+	raytracer.scale(sphere3, Point3D(0, 0, 0), factor3);
+    
+	raytracer.translate(sphere4, Vector3D(1, -2.2, -3));	
+	raytracer.scale(sphere4, Point3D(0, 0, 0), factor3);
+
+	raytracer.translate(plane, Vector3D(-5, 0, -12));	
+    raytracer.rotate(plane, 'x', 10); 
+    raytracer.rotate(plane, 'y', -15); 
 	raytracer.scale(plane, Point3D(0, 0, 0), factor2);
+    
     
     // Point3D p1 = Point3D(2.0,1.0,-5.0);
     // Point3D p2 = Point3D(2.0,3.0,-5.0);
@@ -465,13 +490,13 @@ int main(int argc, char* argv[])
     // SceneDagNode* triangle2 = raytracer.addObject( new Triangle(p1, p2, p3), &ultrav );
 	// raytracer.translate(triangle2, Vector3D(0, 0, -4.5));
     
-    double breaded[3] = { 3.0, 3.0, 3.0 };
-    TriangleMesh* tMesh = new TriangleMesh("Bread.obj");
-    SceneDagNode* cube = raytracer.addObject(tMesh, &ultrav);
-    raytracer.translate(cube, Vector3D(-0.0, -0.0, -3.5));
-    raytracer.rotate(cube, 'y', -45);
-    raytracer.rotate(cube, 'x', 15);
-    raytracer.scale(cube, Point3D(0, 0, 0), breaded);
+    // double breaded[3] = { 3.0, 3.0, 3.0 };
+    // TriangleMesh* tMesh = new TriangleMesh("Bread.obj");
+    // SceneDagNode* cube = raytracer.addObject(tMesh, &ultrav);
+    // raytracer.translate(cube, Vector3D(-0.0, -0.0, -3.5));
+    // raytracer.rotate(cube, 'y', -45);
+    // raytracer.rotate(cube, 'x', 15);
+    // raytracer.scale(cube, Point3D(0, 0, 0), breaded);
     
     // double deerFactor[3] = { 0.05, 0.05, 0.05 };
     // TriangleMesh* deerMesh = new TriangleMesh("hedra.obj");
@@ -487,7 +512,7 @@ int main(int argc, char* argv[])
 	// Render it from a different point of view.
 	Point3D eye2(4, 2, 1);
 	Vector3D view2(-4, -2, -6);
-	Point3D focal (0, 0, -6);
+	Point3D focal (0, 0, -3);
 
 	unsigned char* rbuffer2;
 	unsigned char* gbuffer2;
@@ -504,12 +529,12 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	//raytracer.averageImage(rbuffer2, gbuffer2, bbuffer2, focal, width, height, up, fov);
+	raytracer.averageImage(rbuffer2, gbuffer2, bbuffer2, focal, width, height, up, fov);
     
-    char file2[] = "view2.bmp";
-	raytracer.render(width, height, eye2, view2, up, fov, file2);
-	char file1[] = "view1.bmp";
-    raytracer.render(width, height, eye, view, up, fov, file1);
+    // char file2[] = "view2.bmp";
+	// raytracer.render(width, height, eye2, view2, up, fov, file2);
+	//char file1[] = "view1.bmp";
+    //raytracer.render(width, height, eye, view, up, fov, file1);
 
 	return 0;
 }

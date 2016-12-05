@@ -21,7 +21,7 @@ Colour PointLight::shade( Ray3D& ray ) {
 	// before this function.  
    
     double Ka = 0.2;
-    double Kd = 1.0;
+    double Kd = 0.7;
     double Ks = 0.8; 
     
     Intersection in = ray.intersection;
