@@ -233,10 +233,9 @@ void TriangleMesh::loadMeshFromFile(){
     }
 
     for(int i=0; i<vertexIndices.size(); i+=3){
-        int vtIndex = vertexIndices[i];
-        Point3D v1 = temp_vertices[vtIndex-1];
-        Point3D v2 = temp_vertices[vtIndex+1-1];
-        Point3D v3 = temp_vertices[vtIndex+2-1];
+        Point3D v1 = temp_vertices[vertexIndices[i]-1];
+        Point3D v2 = temp_vertices[vertexIndices[i+1]-1];
+        Point3D v3 = temp_vertices[vertexIndices[i+2]-1];
         // TODO: txtr... ignore texture for now ;-;
         int nIndex = normalIndices[i];
         Vector3D normal = temp_normals[nIndex-1];
@@ -246,7 +245,7 @@ void TriangleMesh::loadMeshFromFile(){
     }
 
     std::cout << "polycount: " << _triangles.size() << "\n";
-    
+
 }
 
 bool TriangleMesh::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
@@ -255,8 +254,6 @@ bool TriangleMesh::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
     
     for(int i=0; i<_triangles.size(); i++){
         Triangle *tri = _triangles[i];
-        //std::cout << " " << tri->_vtA << tri->_vtB << tri->_vtC;
-        //maybe make a temporary ray
         // do the other stuff if there's an intersection...? 
         tri->intersect(ray, worldToModel, modelToWorld);
     }

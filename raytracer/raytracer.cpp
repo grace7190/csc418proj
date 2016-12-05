@@ -421,19 +421,20 @@ int main(int argc, char* argv[])
     // Point3D p2 = Point3D(2.0,3.0,-5.0);
     // Point3D p3 = Point3D(-0.0,1.0,-5.0);
     
-    Point3D p1 = Point3D(0.0,0.5,-0.0);
-    Point3D p2 = Point3D(-0.5,0.0,-0.0);
-    Point3D p3 = Point3D(0.5,0.0,-0.0);
+    Point3D p1 = Point3D(0.0,0.5,0.0);
+    Point3D p2 = Point3D(-0.5,0.0,0.0);
+    Point3D p3 = Point3D(0.5,0.0,0.0);
     
     SceneDagNode* triangle = raytracer.addObject( new Triangle(p1, p2, p3), &gold );
 	raytracer.translate(triangle, Vector3D(0, 0, -5.5));	
     raytracer.rotate(triangle, 'x', -35); 
 	raytracer.scale(triangle, Point3D(0, 0, 0), factor2);
     
-    // TriangleMesh* tMesh = new TriangleMesh("cube.obj");
-    // SceneDagNode* cube = raytracer.addObject(tMesh, &gold);
-    // raytracer.translate(cube, Vector3D(-0.0, -0.0, -5));
-    // raytracer.rotate(cube, 'x', -35);
+    TriangleMesh* tMesh = new TriangleMesh("cube.obj");
+    SceneDagNode* cube = raytracer.addObject(tMesh, &gold);
+    //std::cout << tMesh->_triangles[2]->_vtA << tMesh->_triangles[2]->_vtB << tMesh->_triangles[2]->_vtC;
+    raytracer.translate(cube, Vector3D(-0.0, -0.0, -4.5));
+    raytracer.rotate(cube, 'x', -35);
     
 	// Render the scene, feel free to make the image smaller for
 	// testing purposes.	
