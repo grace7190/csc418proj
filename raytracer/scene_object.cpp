@@ -108,3 +108,51 @@ bool UnitSphere::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 	return false;
 }
 
+bool Triangle::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
+		const Matrix4x4& modelToWorld ) {
+    
+	Point3D modelOrigin = worldToModel * ray.origin;
+	Vector3D modelDir = worldToModel * ray.dir;
+    Vector3D modelOriginVector = Vector3D(modelOrigin[0], modelOrigin[1], modelOrigin[2]);
+    Point3D center = Point3D(0,0,0); //the true origin, not to be confused with modelOrigin...
+    
+    Vector3D AB = _vtB - _vtA;
+    Vector3D AC = _vtC - _vtA;
+    Vector3D BC = _vtC - _vtB;
+    Vector3D CA = _vtA - _vtC;
+    Vector3D normal = AB.cross(AC);
+    double D = normal.dot(_vtA - modelOrigin); //huehuehue
+    //TODO: NOTE: t possibly needs to be not negative or negated
+    double t = (normal.dot(modelOriginVector) + D) / normal.dot(modelDir);
+    Point3D poi = modelOrigin + t*modelDir; //point of intersection (modelIntersection)
+    
+    
+    //handle case where ray parallel to triangle
+    if (modelDir.dot(normal) == 0){
+        return false;
+    }
+    
+    //handle case where triangle is behind ray
+    if (t < 0){
+        return false;
+    }
+    
+    //test if ray is inside triangle
+    Vector3D poiVec = Vector3D(poi[0],poi[1],poi[2]);
+    
+    if (normal.dot(AB.cross(poiVec-(_vtA-center)))>0 &&
+        normal.dot(BC.cross(poiVec-(_vtB-center)))>0 &&
+        normal.dot(CA.cross(poiVec-(_vtC-center)))>0){
+        ray.intersection.point = modelToWorld * poi;
+        ray.intersection.normal = transNorm(worldToModel, normal);
+        ray.intersection.normal.normalize();
+        ray.intersection.none = false;
+        ray.intersection.t_value = t;
+        return true;
+        }
+        
+    return false;
+    
+}
+
+

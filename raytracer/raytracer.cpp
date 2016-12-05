@@ -324,29 +324,30 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 		}
 	}
 
-	// flushPixelBuffer(fileName);
+	flushPixelBuffer(fileName);
 }
 
 void Raytracer::averageImage(unsigned char* rbuffer2, unsigned char* gbuffer2, unsigned char* bbuffer2,
 	Point3D focal, int width, int height, Vector3D up, double fov){
 
-	char* names[25] = {"view2_1.bmp", "view2_2.bmp", "view2_3.bmp", "view2_4.bmp", 
-	"view2_5.bmp", "view2_6.bmp", "view2_7.bmp", "view2_8.bmp",
-	"view2_9.bmp", "view2_10.bmp", "view2_11.bmp", "view2_12.bmp",
-	"view2_13.bmp", "view2_14.bmp", "view2_15.bmp", "view2_16.bmp",
-	"view2_17.bmp", "view2_18.bmp", "view2_19.bmp", "view2_20.bmp",
-	"view2_21.bmp", "view2_22.bmp", "view2_23.bmp", "view2_24.bmp"};
+	// char* names[25] = {"view2_1.bmp", "view2_2.bmp", "view2_3.bmp", "view2_4.bmp", 
+	// "view2_5.bmp", "view2_6.bmp", "view2_7.bmp", "view2_8.bmp",
+	// "view2_9.bmp", "view2_10.bmp", "view2_11.bmp", "view2_12.bmp",
+	// "view2_13.bmp", "view2_14.bmp", "view2_15.bmp", "view2_16.bmp",
+	// "view2_17.bmp", "view2_18.bmp", "view2_19.bmp", "view2_20.bmp",
+	// "view2_21.bmp", "view2_22.bmp", "view2_23.bmp", "view2_24.bmp"};
 
-	for (int i = 0; i<24; i++){
+	for (int i = 0; i<4; i++){
 		std::cout << i << "\n";
 		Point3D eye2(4, 2, 1);
 		Vector3D view2(-4, -2, -6);
 		DOFSampling(eye2, view2, focal);
-		render(width, height, eye2, view2, up, fov, names[i]);
+        char filename[] = " ";
+		render(width, height, eye2, view2, up, fov, filename);
 		for (int j=0; j<( height*width-1 ); j++){
-			rbuffer2[j] += _rbuffer[j]/24.0;
-			gbuffer2[j] += _gbuffer[j]/24.0;
-			bbuffer2[j] += _bbuffer[j]/24.0;
+			rbuffer2[j] += _rbuffer[j]/4.0;
+			gbuffer2[j] += _gbuffer[j]/4.0;
+			bbuffer2[j] += _bbuffer[j]/4.0;
 		}
 	}
 	for (int j=0; j<( height*width-1 ); j++){
@@ -354,7 +355,8 @@ void Raytracer::averageImage(unsigned char* rbuffer2, unsigned char* gbuffer2, u
 		_gbuffer[j] = int(gbuffer2[j]);
 		_bbuffer[j] = int(bbuffer2[j]);
 	}
-	flushPixelBuffer("avView2.bmp");
+    char imfilename[] = "avView2.bmp";
+	flushPixelBuffer(imfilename);
 }
 
 int main(int argc, char* argv[])
@@ -415,14 +417,20 @@ int main(int argc, char* argv[])
     raytracer.rotate(plane, 'x', -35);
 	//raytracer.rotate(plane, 'z', 45); 
 	raytracer.scale(plane, Point3D(0, 0, 0), factor2);
+    
+    Point3D p1 = Point3D(1.0,0.0,-5.0);
+    Point3D p2 = Point3D(0.0,1.0,-5.0);
+    Point3D p3 = Point3D(-1.0,0.0,-4.0);
+    
+    SceneDagNode* triangle = raytracer.addObject( new Triangle(p1, p2, p3), &gold );
 
 	// Render the scene, feel free to make the image smaller for
 	// testing purposes.	
 	// raytracer.render(width, height, eye, view, up, fov, "view1.bmp");
 	
 	// Render it from a different point of view.
-	// Point3D eye2(4, 2, 1);
-	// Vector3D view2(-4, -2, -6);
+	Point3D eye2(4, 2, 1);
+	Vector3D view2(-4, -2, -6);
 	Point3D focal (0, 0, -6);
 
 	unsigned char* rbuffer2;
@@ -440,12 +448,13 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	raytracer.averageImage(rbuffer2, gbuffer2, bbuffer2, focal, width, height, up, fov);
-
-
-
-	// raytracer.render(width, height, eye2, view2, up, fov, "view2.bmp");
-	
+	//raytracer.averageImage(rbuffer2, gbuffer2, bbuffer2, focal, width, height, up, fov);
+    
+    char file2[] = "view2.bmp";
+	raytracer.render(width, height, eye2, view2, up, fov, file2);
+	char file1[] = "view1.bmp";
+    raytracer.render(width, height, eye, view, up, fov, file1);
+    
 	return 0;
 }
 

@@ -34,3 +34,15 @@ public:
 			const Matrix4x4& modelToWorld );
 };
 
+class Triangle : public SceneObject {
+public: 
+    // Triangle is defined by 3 Point3D's
+    Triangle(Point3D A, Point3D B, Point3D C) : _vtA(A), _vtB(B), _vtC(C) {}
+    
+    bool intersect( Ray3D& ray, const Matrix4x4& worldToModel,
+			const Matrix4x4& modelToWorld );
+private:
+    Point3D _vtA;
+    Point3D _vtB;
+    Point3D _vtC;
+};
