@@ -9,6 +9,7 @@
 ***********************************************************/
 
 #include "util.h"
+#include <vector>
 
 // All primitives should provide a intersection function.  
 // To create more primitives, inherit from SceneObject.
@@ -37,12 +38,25 @@ public:
 class Triangle : public SceneObject {
 public: 
     // Triangle is defined by 3 Point3D's
-    Triangle(Point3D A, Point3D B, Point3D C) : _vtA(A), _vtB(B), _vtC(C) {}
+    Triangle(Point3D A, Point3D B, Point3D C, Vector3D normal = Vector3D()) : _vtA(A), _vtB(B), _vtC(C), _normal(normal) {};
     
     bool intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 			const Matrix4x4& modelToWorld );
-private:
+    Vector3D _normal;
     Point3D _vtA;
     Point3D _vtB;
     Point3D _vtC;
+private:
+
+};
+
+class TriangleMesh : public SceneObject {
+public:
+    TriangleMesh(const char *file_name);
+    bool intersect( Ray3D& ray, const Matrix4x4& worldToModel,
+			const Matrix4x4& modelToWorld );
+private:
+    std::vector<Triangle *> _triangles;
+    const char *_file_name;
+    void loadMeshFromFile();
 };

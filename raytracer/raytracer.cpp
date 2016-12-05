@@ -367,8 +367,8 @@ int main(int argc, char* argv[])
 	// change this if you're just implementing part one of the 
 	// assignment.  
 	Raytracer raytracer;
-	int width = 320; 
-	int height = 240; 
+	int width = 180; 
+	int height = 120; 
 
 	if (argc == 3) {
 		width = atoi(argv[1]);
@@ -414,16 +414,27 @@ int main(int argc, char* argv[])
 	raytracer.scale(sphere2, Point3D(0, 0, 0), factor1);	
 
 	raytracer.translate(plane, Vector3D(0, 0, -7));	
-    raytracer.rotate(plane, 'x', -35);
-	//raytracer.rotate(plane, 'z', 45); 
+    raytracer.rotate(plane, 'x', -35); 
 	raytracer.scale(plane, Point3D(0, 0, 0), factor2);
     
-    Point3D p1 = Point3D(1.0,0.0,-5.0);
-    Point3D p2 = Point3D(0.0,1.0,-5.0);
-    Point3D p3 = Point3D(-1.0,0.0,-4.0);
+    // Point3D p1 = Point3D(2.0,1.0,-5.0);
+    // Point3D p2 = Point3D(2.0,3.0,-5.0);
+    // Point3D p3 = Point3D(-0.0,1.0,-5.0);
+    
+    Point3D p1 = Point3D(0.0,0.5,-0.0);
+    Point3D p2 = Point3D(-0.5,0.0,-0.0);
+    Point3D p3 = Point3D(0.5,0.0,-0.0);
     
     SceneDagNode* triangle = raytracer.addObject( new Triangle(p1, p2, p3), &gold );
-
+	raytracer.translate(triangle, Vector3D(0, 0, -5.5));	
+    raytracer.rotate(triangle, 'x', -35); 
+	raytracer.scale(triangle, Point3D(0, 0, 0), factor2);
+    
+    // TriangleMesh* tMesh = new TriangleMesh("cube.obj");
+    // SceneDagNode* cube = raytracer.addObject(tMesh, &gold);
+    // raytracer.translate(cube, Vector3D(-0.0, -0.0, -5));
+    // raytracer.rotate(cube, 'x', -35);
+    
 	// Render the scene, feel free to make the image smaller for
 	// testing purposes.	
 	// raytracer.render(width, height, eye, view, up, fov, "view1.bmp");
