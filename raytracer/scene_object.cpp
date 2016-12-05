@@ -252,7 +252,7 @@ bool TriangleMesh::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 		const Matrix4x4& modelToWorld ) {
     Ray3D rayray = Ray3D(ray.origin, ray.dir);
     
-    for(int i=0; i<4; i++){
+    for(int i=0; i<_triangles.size(); i++){
         Triangle *tri = _triangles[i];
         tri->intersect(rayray, worldToModel, modelToWorld);
     }
