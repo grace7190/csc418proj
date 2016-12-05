@@ -13,6 +13,7 @@
 #include "scene_object.h"
 #include <stdio.h>
 #include <string.h>
+#include <cstdlib>
 
 bool UnitSquare::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 		const Matrix4x4& modelToWorld ) {
@@ -112,49 +113,55 @@ bool UnitSphere::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 
 bool Triangle::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 		const Matrix4x4& modelToWorld ) {
+    //Tutorial https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
+            
+    double eps = 0.000001f;
 	Point3D modelOrigin = worldToModel * ray.origin;
 	Vector3D modelDir = worldToModel * ray.dir;
-    Vector3D modelOriginVector = Vector3D(modelOrigin[0], modelOrigin[1], modelOrigin[2]);
-    Point3D center = Point3D(0,0,0); //the true origin, not to be confused with modelOrigin...
-    
+    //modelDir.normalize();
     Vector3D AB = _vtB - _vtA;
     Vector3D AC = _vtC - _vtA;
-    Vector3D BC = _vtC - _vtB;
-    Vector3D CA = _vtA - _vtC;
-    //if no input for _normal, calculate from ray
-
-    _normal = AB.cross(AC);
-    _normal.normalize(); 
-    double D = _normal.dot(Vector3D(_vtA[0],_vtA[1],_vtA[2]));
-    double t = -(_normal.dot(modelOriginVector) + D) / _normal.dot(modelDir);
-    Point3D poi = modelOrigin + t*modelDir; //point of intersection (modelIntersection)
-
-    //handle case where ray parallel to triangle
-    if (modelDir.dot(_normal) == 0){
+    Vector3D pvec = modelDir.cross(AC);
+    
+    double det = AB.dot(pvec);
+    
+    if (det < eps && det > -eps) {
         return false;
     }
     
-    //handle case where triangle is behind ray
-    if (t < 0){
+    double invDet = 1.0f/det;
+    
+    Vector3D tvec = modelOrigin - Point3D(_vtA[0],_vtA[1],_vtA[2]);
+    double u = tvec.dot(pvec) * invDet;
+    if (u < 0.0 || u > 1.0){
+        return false;
+    }
+    
+    Vector3D qvec = tvec.cross(AB);
+    double v = modelDir.dot(qvec) * invDet;
+    if (v < 0.0 || u + v > 1.0){
+        return false;
+    }
+    
+    double t = AC.dot(qvec) * invDet;
+
+    //Point3D poi = _vtA + u*AC + v*AB;
+    Point3D poi = modelOrigin + t*modelDir;
+    
+    if (t < eps){
         return false;
     }
     
     if (ray.intersection.none || t < ray.intersection.t_value) {
-        //test if ray is inside triangle
-        Vector3D poiVec = Vector3D(poi[0],poi[1],poi[2]);
-        Vector3D c0 = AB.cross(poiVec-(Vector3D(_vtA[0],_vtA[1],_vtA[2])));
-        Vector3D c1 = BC.cross(poiVec-(Vector3D(_vtB[0],_vtB[1],_vtB[2])));
-        Vector3D c2 = CA.cross(poiVec-(Vector3D(_vtC[0],_vtC[1],_vtC[2])));
-        
-        if (_normal.dot(c0)>0 && _normal.dot(c1)>0 && _normal.dot(c2)>0){
-            ray.intersection.point = modelToWorld * poi;
-            ray.intersection.normal = transNorm(worldToModel, _normal);
-            ray.intersection.normal.normalize();
-            ray.intersection.none = false;
-            ray.intersection.t_value = t;
-            return true;
-        }
+        _normal = AB.cross(AC);
+        ray.intersection.point = modelToWorld * poi;
+        ray.intersection.normal = transNorm(worldToModel, -_normal);
+        ray.intersection.normal.normalize();
+        ray.intersection.none = false;
+        ray.intersection.t_value = t;
+        return true;
     }
+    
     return false;
     
 }
@@ -174,8 +181,7 @@ void TriangleMesh::loadMeshFromFile(){
     std::vector<Point3D> temp_vertices;
     std::vector<Point3D> temp_uvs;
     std::vector<Vector3D> temp_normals;
-
-    std::cout<<"loading mesh: " << _file_name << "\n";
+    //std::cout<<"loading mesh: " << _file_name << "\n";
     
     FILE *file = fopen(_file_name, "r");
     if (file==NULL){
@@ -240,8 +246,18 @@ void TriangleMesh::loadMeshFromFile(){
         int nIndex = normalIndices[i];
         Vector3D normal = temp_normals[nIndex-1];
         
+        // double a_change = (rand() % 2 - 1)*0.00001 + 1;
+        // double b_change = (rand() % 2 - 1)*0.00001 + 1;
+        // double c_change = (rand() % 2 - 1)*0.00001 + 1;
+        // Point3D p_change = Point3D(a_change, b_change, c_change); 
         Triangle *tri = new Triangle(v1, v2, v3, normal);
         _triangles.push_back(tri); 
+    }
+    
+    for(int i=0; i<_triangles.size(); i++){
+        Triangle *tri = _triangles[i];
+        //std::cout << "\n" << tri->_vtA << tri->_vtB << tri->_vtC;
+        
     }
 
     std::cout << "polycount: " << _triangles.size() << "\n";

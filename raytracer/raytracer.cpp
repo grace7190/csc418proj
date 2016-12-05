@@ -388,7 +388,11 @@ int main(int argc, char* argv[])
 	Material jade( Colour(0, 0, 0), Colour(0.54, 0.89, 0.63), 
 			Colour(0.316228, 0.316228, 0.316228), 
 			12.8, 1.0 );
-
+            
+	Material ultrav( Colour(0, 0, 0), Colour(59/255.0, 23/255.0, 99/255.0), 
+			Colour(224/255.0, 118/255.0, 255/255.0), 
+			12.8, 0.0 );
+            
 	// Defines a point light source.
 	raytracer.addLightSource( new PointLight(Point3D(0, 0, 5), 
 				Colour(0.9, 0.9, 0.9) ) );
@@ -421,19 +425,34 @@ int main(int argc, char* argv[])
     // Point3D p2 = Point3D(2.0,3.0,-5.0);
     // Point3D p3 = Point3D(-0.0,1.0,-5.0);
     
-    Point3D p1 = Point3D(0.0,0.5,0.0);
-    Point3D p2 = Point3D(-0.5,0.0,0.0);
-    Point3D p3 = Point3D(0.5,0.0,0.0);
+    // Point3D p1 = Point3D(1.0,1.0,0.0);
+    // Point3D p2 = Point3D(1.0,-1.0,0.0);
+    // Point3D p3 = Point3D(0.0,0.0,3.0);
     
-    SceneDagNode* triangle = raytracer.addObject( new Triangle(p1, p2, p3), &gold );
-	raytracer.translate(triangle, Vector3D(0, 0, -5.5));	
-    raytracer.rotate(triangle, 'x', -35); 
-	raytracer.scale(triangle, Point3D(0, 0, 0), factor2);
+    // SceneDagNode* triangle = raytracer.addObject( new Triangle(p1, p2, p3), &ultrav );
+	// raytracer.translate(triangle, Vector3D(0, 0, -4.5));
     
-    TriangleMesh* tMesh = new TriangleMesh("cube.obj");
-    SceneDagNode* cube = raytracer.addObject(tMesh, &gold);
-    raytracer.translate(cube, Vector3D(-0.0, -0.0, -4.5));
-    raytracer.rotate(cube, 'x', -35);
+    // p1 = Point3D(1.0,-1.0,0.0);
+    // p2 = Point3D(-1.0,-1.0,0.0);
+    // p3 = Point3D(0.0,0.0,3.0);
+    
+    // SceneDagNode* triangle2 = raytracer.addObject( new Triangle(p1, p2, p3), &ultrav );
+	// raytracer.translate(triangle2, Vector3D(0, 0, -4.5));
+    
+    double breaded[3] = { 3.0, 3.0, 3.0 };
+    TriangleMesh* tMesh = new TriangleMesh("Bread.obj");
+    SceneDagNode* cube = raytracer.addObject(tMesh, &ultrav);
+    raytracer.translate(cube, Vector3D(-0.0, -0.0, -3.5));
+    raytracer.rotate(cube, 'y', -45);
+    raytracer.rotate(cube, 'x', 15);
+    raytracer.scale(cube, Point3D(0, 0, 0), breaded);
+    
+    // double deerFactor[3] = { 0.05, 0.05, 0.05 };
+    // TriangleMesh* deerMesh = new TriangleMesh("hedra.obj");
+    // SceneDagNode* der = raytracer.addObject(deerMesh, &ultrav);
+    // raytracer.translate(der, Vector3D(-0.0, -0.0, -4.5));
+    // raytracer.rotate(der, 'y', -15);
+    // raytracer.scale(der, Point3D(0, 0, 0), deerFactor);
     
 	// Render the scene, feel free to make the image smaller for
 	// testing purposes.	
