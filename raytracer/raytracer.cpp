@@ -432,7 +432,6 @@ int main(int argc, char* argv[])
     
     TriangleMesh* tMesh = new TriangleMesh("cube.obj");
     SceneDagNode* cube = raytracer.addObject(tMesh, &gold);
-    //std::cout << tMesh->_triangles[2]->_vtA << tMesh->_triangles[2]->_vtB << tMesh->_triangles[2]->_vtC;
     raytracer.translate(cube, Vector3D(-0.0, -0.0, -4.5));
     raytracer.rotate(cube, 'x', -35);
     

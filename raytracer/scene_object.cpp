@@ -250,15 +250,19 @@ void TriangleMesh::loadMeshFromFile(){
 
 bool TriangleMesh::intersect( Ray3D& ray, const Matrix4x4& worldToModel,
 		const Matrix4x4& modelToWorld ) {
-    //Ray3D rayray = Ray3D(ray.origin, ray.dir);
+    Ray3D rayray = Ray3D(ray.origin, ray.dir);
     
-    for(int i=0; i<_triangles.size(); i++){
+    for(int i=0; i<4; i++){
         Triangle *tri = _triangles[i];
-        // do the other stuff if there's an intersection...? 
-        tri->intersect(ray, worldToModel, modelToWorld);
+        tri->intersect(rayray, worldToModel, modelToWorld);
     }
-    return !ray.intersection.none;
-    //return false;
+    
+    if (!rayray.intersection.none){
+        ray = rayray;
+        return true;
+    }
+    
+    return false;
 }
 
 
