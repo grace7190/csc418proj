@@ -265,15 +265,41 @@ Colour Raytracer::shadeRay( Ray3D& ray, int max_depth) {
 	// anything.
 	if (!ray.intersection.none) {
 		computeShading(ray);
-		col = ray.col;
+		if (ray.intersection.mat->refraction > 0) {
+			col = ray.intersection.mat->alpha*ray.col;
+		} else {
+			col = ray.col;
+		}
         
 	// You'll want to call shadeRay recursively (with a different ray, 
 	// of course) here to implement reflection/refraction effects. 
-        Vector3D reflectV = -2*(ray.intersection.normal.dot(ray.dir))*ray.intersection.normal + ray.dir;
-        reflectV.normalize();
-        Ray3D reflectedRay = Ray3D(ray.intersection.point+0.001*reflectV, reflectV);
-        col = col + ray.intersection.mat->reflection*shadeRay(reflectedRay, max_depth-1);
-        col.clamp();
+		if (ray.intersection.mat->reflection > 0) {
+			Vector3D reflectV = -2*(ray.intersection.normal.dot(ray.dir))*ray.intersection.normal + ray.dir;
+			reflectV.normalize();
+			Ray3D reflectedRay = Ray3D(ray.intersection.point+0.001*reflectV, reflectV);
+			col = col + ray.intersection.mat->reflection*shadeRay(reflectedRay, max_depth-1);
+			col.clamp();
+		}
+		// REFRACTION
+		if (ray.intersection.mat->refraction > 0) {
+			Vector3D N = ray.intersection.normal;
+			double NdotRay = N.dot(ray.dir);
+			double refIdx = ray.intersection.mat->refraction;
+			if (NdotRay < 0) {
+				// outside surface, want positive cos(theta)
+				NdotRay = -NdotRay;
+			} else {
+				// inside surface, reverse normal, invert refraction index
+				N = -N;
+				refIdx = 1.0/ray.intersection.mat->refraction;
+			}
+			double k = 1 - refIdx * refIdx * (1 - NdotRay*NdotRay);
+			Vector3D refractV = refIdx * ray.dir + (refIdx * NdotRay - sqrtf(k)) * N;
+			refractV.normalize();
+			Ray3D refractedRay = Ray3D(ray.intersection.point+0.001*refractV, refractV);
+			col = col + shadeRay(refractedRay, max_depth-1);
+			col.clamp();
+		}
 	}
 
 	return col; 
@@ -312,7 +338,7 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 				ray.dir = ray.origin - viewToWorld*origin;
 				ray.dir.normalize();
 
-				averageColour = averageColour + shadeRay(ray, 2);
+				averageColour = averageColour + shadeRay(ray, 3);
 			}
 
 			averageColour = (1.0/9.0) * averageColour;
@@ -324,25 +350,18 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 		}
 	}
 
-	// flushPixelBuffer(fileName);
+	flushPixelBuffer(fileName);
 }
 
 void Raytracer::averageImage(unsigned char* rbuffer2, unsigned char* gbuffer2, unsigned char* bbuffer2,
 	Point3D focal, int width, int height, Vector3D up, double fov){
-
-	char* names[25] = {"view2_1.bmp", "view2_2.bmp", "view2_3.bmp", "view2_4.bmp", 
-	"view2_5.bmp", "view2_6.bmp", "view2_7.bmp", "view2_8.bmp",
-	"view2_9.bmp", "view2_10.bmp", "view2_11.bmp", "view2_12.bmp",
-	"view2_13.bmp", "view2_14.bmp", "view2_15.bmp", "view2_16.bmp",
-	"view2_17.bmp", "view2_18.bmp", "view2_19.bmp", "view2_20.bmp",
-	"view2_21.bmp", "view2_22.bmp", "view2_23.bmp", "view2_24.bmp"};
 
 	for (int i = 0; i<24; i++){
 		std::cout << i << "\n";
 		Point3D eye2(4, 2, 1);
 		Vector3D view2(-4, -2, -6);
 		DOFSampling(eye2, view2, focal);
-		render(width, height, eye2, view2, up, fov, names[i]);
+		render(width, height, eye2, view2, up, fov, "null");
 		for (int j=0; j<( height*width-1 ); j++){
 			rbuffer2[j] += _rbuffer[j]/24.0;
 			gbuffer2[j] += _gbuffer[j]/24.0;
@@ -380,12 +399,15 @@ int main(int argc, char* argv[])
 	double fov = 60;
 
 	// Defines a material for shading.
-	Material gold( Colour(0.3, 0.3, 0.3), Colour(0.75164, 0.60648, 0.22648), 
+	Material gold( Colour(0.3, 0.3, 0.3), Colour(0.7516, 0.60648, 0.22648), 
 			Colour(0.628281, 0.555802, 0.366065), 
-			51.2, 0.05 );
+			51.2, 0.00, 1.3, 0.3 );
 	Material jade( Colour(0, 0, 0), Colour(0.54, 0.89, 0.63), 
 			Colour(0.316228, 0.316228, 0.316228), 
-			12.8, 1.0 );
+			12.8, 1.0, 0.0, 1.0 );
+	Material bade( Colour(0, 0, 0), Colour(0.24, 0.14, 0.73), 
+		Colour(0.206228, 0.506228, 0.306228), 
+		19.8, 0.0, 0.0, 1.0 );
 
 	// Defines a point light source.
 	raytracer.addLightSource( new PointLight(Point3D(0, 0, 5), 
@@ -394,35 +416,37 @@ int main(int argc, char* argv[])
 	// 			Colour(0.9, 0.9, 0.9) ) );
 
 	// Add a unit square into the scene with material mat.
-	SceneDagNode* sphere = raytracer.addObject( new UnitSphere(), &gold );
-	SceneDagNode* sphere2 = raytracer.addObject( new UnitSphere(), &jade );
+	SceneDagNode* sphere = raytracer.addObject( new UnitSquare(), &gold );
+	SceneDagNode* sphere2 = raytracer.addObject( new UnitSphere(), &bade );
 	SceneDagNode* plane = raytracer.addObject( new UnitSquare(), &jade );
 	
 	// Apply some transformations to the unit square.
-	double factor1[3] = { 0.5, 0.5, 0.5 };
+	double factor0[3] = { 2.0, 2.0, 2.0 };
+	double factor1[3] = { 1.0, 0.5, 1.0 };
 	double factor2[3] = { 6.0, 6.0, 6.0 };
-	raytracer.translate(sphere, Vector3D(0, 0, -6));	
-	raytracer.rotate(sphere, 'x', -45); 
-	raytracer.rotate(sphere, 'z', 45); 
-	raytracer.scale(sphere, Point3D(0, 0, 0), factor1);
+	double factor3[3] = { 40.0, 40.0, 40.0 };
+	raytracer.translate(sphere, Vector3D(0, 0, -3));	
+	// raytracer.rotate(sphere, 'x', -45); 
+	// raytracer.rotate(sphere, 'z', 45); 
+	raytracer.scale(sphere, Point3D(0, 0, 0), factor0);
 
-	raytracer.translate(sphere2, Vector3D(-2, -1, -3));	
+	raytracer.translate(sphere2, Vector3D(0, 2, -5));	
 	raytracer.rotate(sphere2, 'x', -25); 
 	raytracer.rotate(sphere2, 'z', 45); 
 	raytracer.scale(sphere2, Point3D(0, 0, 0), factor1);	
 
-	raytracer.translate(plane, Vector3D(0, 0, -7));	
-    raytracer.rotate(plane, 'x', -35);
+	raytracer.translate(plane, Vector3D(0, 0, -6));	
+    raytracer.rotate(plane, 'x', -75);
 	//raytracer.rotate(plane, 'z', 45); 
 	raytracer.scale(plane, Point3D(0, 0, 0), factor2);
 
 	// Render the scene, feel free to make the image smaller for
 	// testing purposes.	
-	// raytracer.render(width, height, eye, view, up, fov, "view1.bmp");
+	raytracer.render(width, height, eye, view, up, fov, "view1.bmp");
 	
 	// Render it from a different point of view.
-	// Point3D eye2(4, 2, 1);
-	// Vector3D view2(-4, -2, -6);
+	Point3D eye2(4, 2, 1);
+	Vector3D view2(-4, -2, -6);
 	Point3D focal (0, 0, -6);
 
 	unsigned char* rbuffer2;
@@ -440,18 +464,20 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	raytracer.averageImage(rbuffer2, gbuffer2, bbuffer2, focal, width, height, up, fov);
+	// raytracer.averageImage(rbuffer2, gbuffer2, bbuffer2, focal, width, height, up, fov);
 
 
 
-	// raytracer.render(width, height, eye2, view2, up, fov, "view2.bmp");
+	raytracer.render(width, height, eye2, view2, up, fov, "view2.bmp");
 	
 	return 0;
 }
 
 // TODO:
 // 	. under-reflection??
-// 	. fix shadows
+// 	. fix shadows (only ambient instead of black)
+//  . fix shadows for see-thru objects!!
 // ----------------------	
 // 	. ray marching..??
 // 	. particle effects!
+//  . bounding box??
