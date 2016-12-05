@@ -482,7 +482,7 @@ int main(int argc, char* argv[])
     
 	// Render the scene, feel free to make the image smaller for
 	// testing purposes.	
-	raytracer.render(width, height, eye, view, up, fov, "view1.bmp");
+	// raytracer.render(width, height, eye, view, up, fov, "view1.bmp");
 	
 	// Render it from a different point of view.
 	Point3D eye2(4, 2, 1);
