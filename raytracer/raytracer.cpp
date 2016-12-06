@@ -357,7 +357,7 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 		}
 	}
 
-	//flushPixelBuffer(fileName);
+	flushPixelBuffer(fileName);
 }
 
 void Raytracer::averageImage(unsigned char* rbuffer2, unsigned char* gbuffer2, unsigned char* bbuffer2,
@@ -393,8 +393,8 @@ int main(int argc, char* argv[])
 	// change this if you're just implementing part one of the 
 	// assignment.  
 	Raytracer raytracer;
-	int width = 720; 
-	int height = 480; 
+	int width = 380; 
+	int height = 240; 
 
 	if (argc == 3) {
 		width = atoi(argv[1]);
@@ -405,7 +405,7 @@ int main(int argc, char* argv[])
 	Point3D eye(0, 0, 1);
 	Vector3D view(0.3, 0, -1);
 	Vector3D up(0, 1, 0);
-	double fov = 80;
+	double fov = 90;
 
 	// Defines a material for shading.
 	Material gold( Colour(0.3, 0.3, 0.3), Colour(0.7516, 0.60648, 0.22648), 
@@ -417,6 +417,10 @@ int main(int argc, char* argv[])
             
 	Material ultrav( Colour(0, 0, 0), Colour(59/255.0, 23/255.0, 99/255.0), 
 			Colour(224/255.0, 118/255.0, 255/255.0), 
+			12.8, 0.0,0.0,1.0);
+            
+    Material stark( Colour(0, 0, 0), Colour(31/255.0, 29/255.0, 82/255.0), 
+			Colour(96/255.0, 208/255.0, 255/255.0), 
 			12.8, 0.0,0.0,1.0);
             
 	Material bade( Colour(0, 0, 0), Colour(0.24, 0.14, 0.73), 
@@ -433,6 +437,16 @@ int main(int argc, char* argv[])
                     Colour(145/255.0,167/255.0,208/255.0),
                     Colour(246/255.0,202/255.0,204/255.0),
                     0.001, 0.0, 0.0, 1.0); 
+                    
+    Material gemini(Colour(23/255.0,24/255.0,32/255.0),
+                    Colour(51/255.0,53/255.0,67/255.0),
+                    Colour(116/255.0,202/255.0,212/255.0),
+                    160.0, 0.00, 0.0, 1.0); 
+                    
+    Material high(Colour(23/255.0,24/255.0,32/255.0),
+                    Colour(192/255.0,237/255.0,221/255.0),
+                    Colour(192/255.0,237/255.0,221/255.0),
+                    160.0, 0.7, 0.0, 1.0); 
         
 	// Defines a point light source.
 	raytracer.addLightSource( new PointLight(Point3D(-2, -2.2, 0), 
@@ -441,34 +455,34 @@ int main(int argc, char* argv[])
 	 			Colour(0.99, 0.92, 0.9) ) );
 
 	// Add a unit square into the scene with material mat.
-	SceneDagNode* sphere = raytracer.addObject( new UnitSphere(), &pantone );
-	SceneDagNode* sphere2 = raytracer.addObject( new UnitSphere(), &pantone );
-    SceneDagNode* sphere3 = raytracer.addObject( new UnitSphere(), &pantone );
-    SceneDagNode* sphere4 = raytracer.addObject( new UnitSphere(), &pantone );
-	SceneDagNode* plane = raytracer.addObject( new UnitSquare(), &ultrav );
+	// SceneDagNode* sphere = raytracer.addObject( new UnitSphere(), &pantone );
+	// SceneDagNode* sphere2 = raytracer.addObject( new UnitSphere(), &pantone );
+    // SceneDagNode* sphere3 = raytracer.addObject( new UnitSphere(), &pantone );
+    // SceneDagNode* sphere4 = raytracer.addObject( new UnitSphere(), &pantone );
+	SceneDagNode* plane = raytracer.addObject( new UnitSquare(), &stark );
     
 	// Apply some transformations to the unit square.
-	double factor1[3] = { 1.0, 1.0, 1.0 };
-	double factor2[3] = { 50.0, 50.0, 50.0 };
+	double factor1[3] = { 1.5, 1.5, 1.5 };
+	double factor2[3] = { 300.0, 300.0, 300.0 };
 	double factor3[3] = { 0.3, 0.3, 0.3 };
 
 	//double factor3[3] = { 40.0, 40.0, 40.0 };
     
-	raytracer.translate(sphere, Vector3D(0.2, -0.2, -3));	
-	raytracer.scale(sphere, Point3D(0, 0, 0), factor1);
+	// raytracer.translate(sphere, Vector3D(0.2, -0.2, -3));	
+	// raytracer.scale(sphere, Point3D(0, 0, 0), factor1);
 
-	raytracer.translate(sphere2, Vector3D(2, 1.5, -3.4));	
-	raytracer.scale(sphere2, Point3D(0, 0, 0), factor3);	
+	// raytracer.translate(sphere2, Vector3D(2, 1.5, -3.4));	
+	// raytracer.scale(sphere2, Point3D(0, 0, 0), factor3);	
     
-	raytracer.translate(sphere3, Vector3D(-2, 0.5, -3));	
-	raytracer.scale(sphere3, Point3D(0, 0, 0), factor3);
+	// raytracer.translate(sphere3, Vector3D(-2, 0.5, -3));	
+	// raytracer.scale(sphere3, Point3D(0, 0, 0), factor3);
     
-	raytracer.translate(sphere4, Vector3D(1, -2.2, -3));	
-	raytracer.scale(sphere4, Point3D(0, 0, 0), factor3);
+	// raytracer.translate(sphere4, Vector3D(1, -2.2, -3));	
+	// raytracer.scale(sphere4, Point3D(0, 0, 0), factor3);
 
-	raytracer.translate(plane, Vector3D(-5, 0, -12));	
-    raytracer.rotate(plane, 'x', 10); 
-    raytracer.rotate(plane, 'y', -15); 
+	raytracer.translate(plane, Vector3D(0, 0, -6.5));	
+    raytracer.rotate(plane, 'y', 21);
+    raytracer.rotate(plane, 'x', -45);
 	raytracer.scale(plane, Point3D(0, 0, 0), factor2);
     
     
@@ -498,20 +512,20 @@ int main(int argc, char* argv[])
     // raytracer.rotate(cube, 'x', 15);
     // raytracer.scale(cube, Point3D(0, 0, 0), breaded);
     
-    // double deerFactor[3] = { 0.05, 0.05, 0.05 };
-    // TriangleMesh* deerMesh = new TriangleMesh("hedra.obj");
-    // SceneDagNode* der = raytracer.addObject(deerMesh, &ultrav);
-    // raytracer.translate(der, Vector3D(-0.0, -0.0, -4.5));
-    // raytracer.rotate(der, 'y', -15);
-    // raytracer.scale(der, Point3D(0, 0, 0), deerFactor);
+    //double deerFactor[3] = { 0.05, 0.05, 0.05 };
+    TriangleMesh* deerMesh = new TriangleMesh("wurf.obj");
+    SceneDagNode* der = raytracer.addObject(deerMesh, &high);
+    raytracer.translate(der, Vector3D(2.0, 1.0, -3.5));
+    raytracer.rotate(der, 'x', 45);
+    raytracer.scale(der, Point3D(0, 0, 0), factor1);
     
 	// Render the scene, feel free to make the image smaller for
 	// testing purposes.	
 	// raytracer.render(width, height, eye, view, up, fov, "view1.bmp");
 	
 	// Render it from a different point of view.
-	Point3D eye2(4, 2, 1);
-	Vector3D view2(-4, -2, -6);
+	Point3D eye2(4, 2, -0.2);
+	Vector3D view2(-4, -1.8, -5.2);
 	Point3D focal (0, 0, -3);
 
 	unsigned char* rbuffer2;
@@ -529,12 +543,12 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	raytracer.averageImage(rbuffer2, gbuffer2, bbuffer2, focal, width, height, up, fov);
+	//raytracer.averageImage(rbuffer2, gbuffer2, bbuffer2, focal, width, height, up, fov);
     
-    // char file2[] = "view2.bmp";
-	// raytracer.render(width, height, eye2, view2, up, fov, file2);
+    char file2[] = "view2.bmp";
+	raytracer.render(width, height, eye2, view2, up, fov, file2);
 	//char file1[] = "view1.bmp";
-    //raytracer.render(width, height, eye, view, up, fov, file1);
+    // raytracer.render(width, height, eye, view, up, fov, file1);
 
 	return 0;
 }
