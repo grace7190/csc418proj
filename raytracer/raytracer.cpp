@@ -391,6 +391,8 @@ int main(int argc, char* argv[])
 	Raytracer raytracer;
 	int width = 380; 
 	int height = 240;
+	// int width = 190;
+	// int height = 120;
 
 	if (argc == 3) {
 		width = atoi(argv[1]);
@@ -439,114 +441,59 @@ int main(int argc, char* argv[])
                     160.0, 0.7, 0.0, 1.0); 
         
 	// Defines a point light source.
-	// raytracer.addLightSource( new PointLight(Point3D(-2, -2.2, 0), 
-	// 			Colour(0.6, 0.6, 0.9) ) );
-    raytracer.addLightSource( new PointLight(Point3D(1.2, 2.1, 10), 
-	 			Colour(0.99, 0.92, 0.9) ) );
+	raytracer.addLightSource( new PointLight(Point3D(0.0, -1.0, 3), 
+				Colour(0.6, 0.6, 0.9) ) );
 
 	// Add a unit square into the scene with material mat.
 	SceneDagNode* sphere = raytracer.addObject( new UnitSphere(), &bade );
 	SceneDagNode* sphere2 = raytracer.addObject( new UnitSphere(), &pantone );
     SceneDagNode* sphere3 = raytracer.addObject( new UnitSphere(), &high );
-    // SceneDagNode* sphere4 = raytracer.addObject( new UnitSphere(), &pantone );
+    SceneDagNode* sphere4 = raytracer.addObject( new UnitSphere(), &flat_pantone );
 	SceneDagNode* plane = raytracer.addObject( new UnitSquare(), &ultrav );
-	// SceneDagNode* wall1 = raytracer.addObject( new UnitSquare(), &ultrav );
-	// SceneDagNode* wall2 = raytracer.addObject( new UnitSquare(), &ultrav );
-	// SceneDagNode* wall3 = raytracer.addObject( new UnitSquare(), &ultrav );
-	// SceneDagNode* wall4 = raytracer.addObject( new UnitSquare(), &ultrav );
+	SceneDagNode* wall1 = raytracer.addObject( new UnitSquare(), &jade );
+	SceneDagNode* wall2 = raytracer.addObject( new UnitSquare(), &gold );
     
 	// Apply some transformations to the unit square.
-	double factor1[3] = { 1.5, 1.5, 1.5 };
+	double factor1[3] = { 2.0, 2.0, 2.0 };
 	double factor2[3] = { 300.0, 300.0, 300.0 };
-	double factor3[3] = { 0.7, 1.3, 0.7 };
-	double factor4[3] = { 5.0, 5.0, 5.0 };
+	double factor22[3] = { 300.0, 30.0, 30.0 };
+	double factor23[3] = { 10.0, 10.0, 10.0 };
+	double factor3[3] = { 1.0, 1.0, 1.0 };
+	double factor4[3] = { 3.0, 3.0, 3.0 };
     
-	raytracer.translate(sphere, Vector3D(1.0, 3.5, 3.0));	
-	raytracer.scale(sphere, Point3D(0, 0, 0), factor3);
-
-	raytracer.translate(sphere, Vector3D(5.0, 4.5, 0.0));	
+	raytracer.translate(sphere, Vector3D(1.0, 3.5, -2.5));	
 	raytracer.scale(sphere, Point3D(0, 0, 0), factor1);
 
-	raytracer.translate(sphere, Vector3D(-7.0, -2.5, 2.0));	
-	raytracer.scale(sphere, Point3D(0, 0, 0), factor4);
+	raytracer.translate(sphere2, Vector3D(1.0, 3.5, 1.0));	
+	raytracer.scale(sphere2, Point3D(0, 0, 0), factor3);
 
-	// raytracer.translate(sphere2, Vector3D(2, 1.5, -3.4));	
-	// raytracer.scale(sphere2, Point3D(0, 0, 0), factor3);	
-    
-	// raytracer.translate(sphere3, Vector3D(-2, 0.5, -3));	
-	// raytracer.scale(sphere3, Point3D(0, 0, 0), factor3);
-    
-	// raytracer.translate(sphere4, Vector3D(1, -2.2, -3));	
-	// raytracer.scale(sphere4, Point3D(0, 0, 0), factor3);
+	raytracer.translate(sphere3, Vector3D(10.0, 4.5, -3.0));	
+	raytracer.scale(sphere3, Point3D(0, 0, 0), factor4);
+
+	raytracer.translate(sphere4, Vector3D(-8.0, 6.5, 0.0));	
+	raytracer.scale(sphere4, Point3D(0, 0, 0), factor4);
 
 	raytracer.translate(plane, Vector3D(0, 0, -10));
 	raytracer.scale(plane, Point3D(0, 0, 0), factor2);
 
-	// raytracer.translate(wall1, Vector3D(0.0, -150, 140));
-	// raytracer.rotate(wall1, 'x', -90);
-	// raytracer.scale(wall1, Point3D(0, 0, 0), factor2);
+	raytracer.translate(wall1, Vector3D(0.0, 15, 5));
+	raytracer.rotate(wall1, 'x', 90);
+	raytracer.scale(wall1, Point3D(0, 0, 0), factor22);
     
-    // raytracer.translate(wall2, Vector3D(0.0, 150, 140));
-	// raytracer.rotate(wall2, 'x', 90);
-	// raytracer.scale(wall2, Point3D(0, 0, 0), factor2);
-    
-	// raytracer.translate(wall3, Vector3D(150, 0.0, 140));
-	// raytracer.rotate(wall3, 'y', -90);
-	// raytracer.scale(wall3, Point3D(0, 0, 0), factor2);
+    raytracer.translate(wall2, Vector3D(1.0, 3.5, -3.0));
+	raytracer.rotate(wall2, 'x', -90);
+	raytracer.translate(wall2, Vector3D(-10.0, 2.0, 0.0));
+	raytracer.scale(wall2, Point3D(0, 0, 0), factor23);
+   
 
-	// raytracer.translate(wall4, Vector3D(-150, 0.0, 140));
-	// raytracer.rotate(wall4, 'y', 90);
-	// raytracer.scale(wall4, Point3D(0, 0, 0), factor2);
-
-
-    // Point3D p1 = Point3D(2.0,1.0,-5.0);
-    // Point3D p2 = Point3D(2.0,3.0,-5.0);
-    // Point3D p3 = Point3D(-0.0,1.0,-5.0);
-    
-    // Point3D p1 = Point3D(1.0,1.0,0.0);
-    // Point3D p2 = Point3D(1.0,-1.0,0.0);
-    // Point3D p3 = Point3D(0.0,0.0,3.0);
-    
-    // SceneDagNode* triangle = raytracer.addObject( new Triangle(p1, p2, p3), &ultrav );
-	// raytracer.translate(triangle, Vector3D(0, 0, -4.5));
-    
-    // p1 = Point3D(1.0,-1.0,0.0);
-    // p2 = Point3D(-1.0,-1.0,0.0);
-    // p3 = Point3D(0.0,0.0,3.0);
-    
-    // SceneDagNode* triangle2 = raytracer.addObject( new Triangle(p1, p2, p3), &ultrav );
-	// raytracer.translate(triangle2, Vector3D(0, 0, -4.5));
-    
-    // double breaded[3] = { 3.0, 3.0, 3.0 };
-    // TriangleMesh* tMesh = new TriangleMesh("Bread.obj");
-    // SceneDagNode* cube = raytracer.addObject(tMesh, &ultrav);
-    // raytracer.translate(cube, Vector3D(-0.0, -0.0, -3.5));
-    // raytracer.rotate(cube, 'y', -45);
-    // raytracer.rotate(cube, 'x', 15);
-    // raytracer.scale(cube, Point3D(0, 0, 0), breaded);
-    
-    //double deerFactor[3] = { 0.05, 0.05, 0.05 };
-    // TriangleMesh* deerMesh = new TriangleMesh("wurf.obj");
-    // SceneDagNode* der = raytracer.addObject(deerMesh, &high);
-    // raytracer.translate(der, Vector3D(2.0, 1.0, -3.5));
-    // raytracer.rotate(der, 'x', 45);
-    // raytracer.scale(der, Point3D(0, 0, 0), factor1);
-    
-	// Render the scene, feel free to make the image smaller for
-	// testing purposes.	
-	// raytracer.render(width, height, eye, view, up, fov, "view1.bmp");
-
-	// Camera parameters.
-	Point3D eye(0, 0, 1);
-	Vector3D view(0, 0, -1);
+		// Camera parameters.
+	Point3D eye(2, -2, 1);
+	Vector3D view(-2, 2, -5);
 	Vector3D up(0, 1, 0);
 	double fov = 90;
 	
-	// Render it from a different point of view.
-	// Point3D eye2(4, 2, 1);
-	// Vector3D view2(-4, -2, -6);
-	Point3D eye2(0, 10, 1);
-	Vector3D view2(0, -10, -6);
+	Point3D eye2(0, -4, 1);
+	Vector3D view2(0, 4, -3);
 	Point3D focal (0, 0, -3);
 
 	unsigned char* rbuffer2;
@@ -569,7 +516,7 @@ int main(int argc, char* argv[])
 	char file1[] = "view1.bmp";
     char file2[] = "view2.bmp";
 	std::cout << "Rendering " << file1 << "...\n";
-    raytracer.render(width, height, eye, view, up, fov, file1);
+    // raytracer.render(width, height, eye, view, up, fov, file1);
     std::cout << "...Done rendering " << file1 << "\n";
     std::cout << "Rendering " << file2 << "...\n";
 	raytracer.render(width, height, eye2, view2, up, fov, file2);
@@ -577,12 +524,3 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
-
-// TODO:
-// 	. under-reflection??
-// 	. fix shadows (only ambient instead of black)
-//  . fix shadows for see-thru objects!!
-// ----------------------	
-// 	. ray marching..??
-// 	. particle effects!
-//  . bounding box??
