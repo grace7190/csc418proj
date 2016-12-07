@@ -397,12 +397,6 @@ int main(int argc, char* argv[])
 		height = atoi(argv[2]);
 	}
 
-	// Camera parameters.
-	Point3D eye(0, 0, 1);
-	Vector3D view(0.3, 0, -1);
-	Vector3D up(0, 1, 0);
-	double fov = 90;
-
 	// Defines a material for shading.
 	Material gold( Colour(0.3, 0.3, 0.3), Colour(0.7516, 0.60648, 0.22648), 
 			Colour(0.628281, 0.555802, 0.366065), 
@@ -445,27 +439,36 @@ int main(int argc, char* argv[])
                     160.0, 0.7, 0.0, 1.0); 
         
 	// Defines a point light source.
-	raytracer.addLightSource( new PointLight(Point3D(-2, -2.2, 0), 
-				Colour(0.6, 0.6, 0.9) ) );
-    raytracer.addLightSource( new PointLight(Point3D(1.2, 2.1, -1), 
+	// raytracer.addLightSource( new PointLight(Point3D(-2, -2.2, 0), 
+	// 			Colour(0.6, 0.6, 0.9) ) );
+    raytracer.addLightSource( new PointLight(Point3D(1.2, 2.1, 10), 
 	 			Colour(0.99, 0.92, 0.9) ) );
 
 	// Add a unit square into the scene with material mat.
-	SceneDagNode* sphere = raytracer.addObject( new UnitSphere(), &gold );
-	// SceneDagNode* sphere2 = raytracer.addObject( new UnitSphere(), &pantone );
-    // SceneDagNode* sphere3 = raytracer.addObject( new UnitSphere(), &pantone );
+	SceneDagNode* sphere = raytracer.addObject( new UnitSphere(), &bade );
+	SceneDagNode* sphere2 = raytracer.addObject( new UnitSphere(), &pantone );
+    SceneDagNode* sphere3 = raytracer.addObject( new UnitSphere(), &high );
     // SceneDagNode* sphere4 = raytracer.addObject( new UnitSphere(), &pantone );
-	SceneDagNode* plane = raytracer.addObject( new UnitSquare(), &jade );
+	SceneDagNode* plane = raytracer.addObject( new UnitSquare(), &ultrav );
+	// SceneDagNode* wall1 = raytracer.addObject( new UnitSquare(), &ultrav );
+	// SceneDagNode* wall2 = raytracer.addObject( new UnitSquare(), &ultrav );
+	// SceneDagNode* wall3 = raytracer.addObject( new UnitSquare(), &ultrav );
+	// SceneDagNode* wall4 = raytracer.addObject( new UnitSquare(), &ultrav );
     
 	// Apply some transformations to the unit square.
 	double factor1[3] = { 1.5, 1.5, 1.5 };
 	double factor2[3] = { 300.0, 300.0, 300.0 };
-	double factor3[3] = { 0.3, 0.3, 0.3 };
-
-	//double factor3[3] = { 40.0, 40.0, 40.0 };
+	double factor3[3] = { 0.7, 1.3, 0.7 };
+	double factor4[3] = { 5.0, 5.0, 5.0 };
     
-	raytracer.translate(sphere, Vector3D(1.0, 3.5, -3.0));	
+	raytracer.translate(sphere, Vector3D(1.0, 3.5, 3.0));	
+	raytracer.scale(sphere, Point3D(0, 0, 0), factor3);
+
+	raytracer.translate(sphere, Vector3D(5.0, 4.5, 0.0));	
 	raytracer.scale(sphere, Point3D(0, 0, 0), factor1);
+
+	raytracer.translate(sphere, Vector3D(-7.0, -2.5, 2.0));	
+	raytracer.scale(sphere, Point3D(0, 0, 0), factor4);
 
 	// raytracer.translate(sphere2, Vector3D(2, 1.5, -3.4));	
 	// raytracer.scale(sphere2, Point3D(0, 0, 0), factor3);	
@@ -476,12 +479,26 @@ int main(int argc, char* argv[])
 	// raytracer.translate(sphere4, Vector3D(1, -2.2, -3));	
 	// raytracer.scale(sphere4, Point3D(0, 0, 0), factor3);
 
-	raytracer.translate(plane, Vector3D(0, 0, -6.5));	
-    raytracer.rotate(plane, 'y', 21);
-    raytracer.rotate(plane, 'x', -45);
+	raytracer.translate(plane, Vector3D(0, 0, -10));
 	raytracer.scale(plane, Point3D(0, 0, 0), factor2);
+
+	// raytracer.translate(wall1, Vector3D(0.0, -150, 140));
+	// raytracer.rotate(wall1, 'x', -90);
+	// raytracer.scale(wall1, Point3D(0, 0, 0), factor2);
     
+    // raytracer.translate(wall2, Vector3D(0.0, 150, 140));
+	// raytracer.rotate(wall2, 'x', 90);
+	// raytracer.scale(wall2, Point3D(0, 0, 0), factor2);
     
+	// raytracer.translate(wall3, Vector3D(150, 0.0, 140));
+	// raytracer.rotate(wall3, 'y', -90);
+	// raytracer.scale(wall3, Point3D(0, 0, 0), factor2);
+
+	// raytracer.translate(wall4, Vector3D(-150, 0.0, 140));
+	// raytracer.rotate(wall4, 'y', 90);
+	// raytracer.scale(wall4, Point3D(0, 0, 0), factor2);
+
+
     // Point3D p1 = Point3D(2.0,1.0,-5.0);
     // Point3D p2 = Point3D(2.0,3.0,-5.0);
     // Point3D p3 = Point3D(-0.0,1.0,-5.0);
@@ -518,10 +535,18 @@ int main(int argc, char* argv[])
 	// Render the scene, feel free to make the image smaller for
 	// testing purposes.	
 	// raytracer.render(width, height, eye, view, up, fov, "view1.bmp");
+
+	// Camera parameters.
+	Point3D eye(0, 0, 1);
+	Vector3D view(0, 0, -1);
+	Vector3D up(0, 1, 0);
+	double fov = 90;
 	
 	// Render it from a different point of view.
-	Point3D eye2(4, 2, -0.2);
-	Vector3D view2(-4, -1.8, -5.2);
+	// Point3D eye2(4, 2, 1);
+	// Vector3D view2(-4, -2, -6);
+	Point3D eye2(0, 10, 1);
+	Vector3D view2(0, -10, -6);
 	Point3D focal (0, 0, -3);
 
 	unsigned char* rbuffer2;
@@ -541,10 +566,14 @@ int main(int argc, char* argv[])
 
 	//raytracer.averageImage(rbuffer2, gbuffer2, bbuffer2, focal, width, height, up, fov);
     
+	char file1[] = "view1.bmp";
     char file2[] = "view2.bmp";
+	std::cout << "Rendering " << file1 << "...\n";
+    raytracer.render(width, height, eye, view, up, fov, file1);
+    std::cout << "...Done rendering " << file1 << "\n";
+    std::cout << "Rendering " << file2 << "...\n";
 	raytracer.render(width, height, eye2, view2, up, fov, file2);
-	//char file1[] = "view1.bmp";
-    // raytracer.render(width, height, eye, view, up, fov, file1);
+	std::cout << "...Done rendering " << file2 << "\n";
 
 	return 0;
 }
