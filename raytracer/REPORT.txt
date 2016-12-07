@@ -1,0 +1,25 @@
+**Overall Submission**
+We successfully implemented part 1 of the project and opted for the advanced ray-tracing option for part 2, with arbitrary surface mesh, anti-aliasing, depth of field, extended light sources, and refraction. 
+
+**Program structure, what we implemented, and resources used**
+Part 1
+We implemented ray-sphere and ray-square intersections (that work with affinely transformations), as well as Phong shading by filling out the TODO's in scene_object and light_source. This can be see in image1 and image2 
+
+Part 2
+We wrote code for recursive ray-tracing (reflections, specularity) in Raytracer::shadeRay, and we did this by calling shadeRay on the ray that 'bounced' off the surface at the intersection point, up to a maximum depth. This can be seen in image3. 
+
+Basic shadows was done in Raytracer::computeShading, where we define a point as being in the shadow if there is some object on the path between the point and the light. This can be seen in image4.
+
+Loading in arbitrary surface meshes into our scene was a little more involved. We first wrote the code for intersection with a triangle in Triangle::intersect, using a tutorial from scratchapixel (linked in the code) with the Moller-Trumbore method for calculations. We looked at a different tutorial (also linked in the code) to write TriangleMesh::loadMeshFromFile which takes in an OBJ file with specific options and converts it into Triangle class objects. 
+Finally, we render the mesh by iterating intersection code over the list of triangles contained in TriangleMesh. This can be seen in image5.
+
+Anti-aliasing was done by simply extending the Raytracer::render function to send out more than one ray per pixel, then taking the average of those values.
+
+Extended light sources was also done the same way, we just took samples of the light in Raytracer::computeShading to simulate a soft shadow effect. 
+
+Depth of field was done pretty much the same way. We took different samples for the eye randomly in the function Raytracer::DOFSampling, creating one image per sample, which we then took the average of. 
+
+Refraction is implemented in Raytracer::shadeRay. We added an index of refraction to the material, and based on that we compute the effects of refraction on our scene. 
+
+**Role of each member on project**
+Aside from refraction and arbitrary surface mesh, the rest of the project was done collaboratively. My partner implemented refraction and I implemented loading in and rendering surface mesh. 

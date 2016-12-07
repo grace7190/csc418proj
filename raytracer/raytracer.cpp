@@ -130,6 +130,7 @@ void Raytracer::scale( SceneDagNode* node, Point3D origin, double factor[3] ) {
 }
 
 void Raytracer::DOFSampling( Point3D& eye, Vector3D& view, Point3D focus ) {
+    // randomly permutate the position of eye to simulate depth of field
 	double x_change = (rand() % 20 - 10) /40.0;
 	double y_change = (rand() % 20 - 10) /40.0;
 	double z_change = (rand() % 20 - 10) /40.0;
@@ -207,6 +208,7 @@ void Raytracer::computeShading( Ray3D& ray ) {
 		// int y_off[] = {2,-2,3,-3,-4,-2,1,-1,-1,1,1,1,1,4,0,0,-3,-4,-3,1};
 		// int z_off[] = {-3,-4,2,0,2,-1,1,-3,4,-4,2,1,-4,0,-3,3,2,4,1,4};
 
+        // randomly permutate light to simulate soft shadows
 		int i;
 		for (i = 0; i < 19; i++) {
             double x_change = (rand() % 20 - 10)/5.0;
@@ -332,6 +334,7 @@ void Raytracer::render( int width, int height, Point3D eye, Vector3D view,
 			Point3D origin(0, 0, 0);
 			Colour averageColour = Colour(0,0,0);
 
+            //take random samples near the pixel for anti-aliasing
 			for (int offset = 0; offset < sizeof(i_off)/sizeof(i_off[0]); offset++){
                 double i_change = (rand() % 100 - 50)/100.0;
                 double j_change = (rand() % 100 - 50)/100.0;
