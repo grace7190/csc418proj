@@ -18,6 +18,7 @@ class LightSource {
 public:
 	virtual Colour shade( Ray3D& ) = 0;
 	virtual Point3D get_position() const = 0; 
+	virtual Colour shadow() = 0;
 };
 
 // A point light is defined by its position in world space and its
@@ -33,6 +34,7 @@ public:
     
 	Colour shade( Ray3D& ray );
 	Point3D get_position() const { return _pos; }
+	Colour shadow();
 	
 private:
 	Point3D _pos;

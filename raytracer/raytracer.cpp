@@ -203,12 +203,8 @@ void Raytracer::computeShading( Ray3D& ray ) {
 
 		Point3D p = ray.intersection.point; // point on surface
 
-		// int x_off[] = {-1,2,1,-1,2,4,2,-1,0,-1,4,0,0,-3,2,-3,0,4,-4,-3};
-		// int y_off[] = {2,-2,3,-3,-4,-2,1,-1,-1,1,1,1,1,4,0,0,-3,-4,-3,1};
-		// int z_off[] = {-3,-4,2,0,2,-1,1,-3,4,-4,2,1,-4,0,-3,3,2,4,1,4};
-
 		int i;
-		for (i = 0; i < 19; i++) {
+		for (i = 0; i < 20; i++) {
             double x_change = (rand() % 20 - 10)/5.0;
             double y_change = (rand() % 20 - 10)/5.0;
             double z_change = (rand() % 20 - 10)/5.0;
@@ -218,6 +214,7 @@ void Raytracer::computeShading( Ray3D& ray ) {
 				curLight->light->get_position()[1]+y_change/10.0,
 				curLight->light->get_position()[2]+z_change/10.0);
 
+			// Check for intersection between point and light (shadow if none)
 			Vector3D s = offset - p; // vector towards light
 			s.normalize();
 			p = p + 0.0001*s;
@@ -226,8 +223,7 @@ void Raytracer::computeShading( Ray3D& ray ) {
 			if (light_ray.intersection.none) {
 				ray.col = ray.col + 0.05*curLight->light->shade(ray);
 			} else {
-        		Colour col(0.0, 0.0, 0.0); //not blue for testing
-        		ray.col = ray.col + col;
+        		ray.col = ray.col + 0.05*curLight->light->shadow();
         	}
         }
 		curLight = curLight->next;
@@ -394,7 +390,7 @@ int main(int argc, char* argv[])
 	// assignment.  
 	Raytracer raytracer;
 	int width = 380; 
-	int height = 240; 
+	int height = 240;
 
 	if (argc == 3) {
 		width = atoi(argv[1]);
@@ -410,18 +406,18 @@ int main(int argc, char* argv[])
 	// Defines a material for shading.
 	Material gold( Colour(0.3, 0.3, 0.3), Colour(0.7516, 0.60648, 0.22648), 
 			Colour(0.628281, 0.555802, 0.366065), 
-			51.2, 0.00, 1.3, 0.3 );
+			51.2, 0.0, 1.3, 0.3 );
 	Material jade( Colour(0, 0, 0), Colour(0.54, 0.89, 0.63), 
 			Colour(0.316228, 0.316228, 0.316228), 
 			12.8, 1.0, 0.0, 1.0 );
             
 	Material ultrav( Colour(0, 0, 0), Colour(59/255.0, 23/255.0, 99/255.0), 
 			Colour(224/255.0, 118/255.0, 255/255.0), 
-			12.8, 0.0,0.0,1.0);
+			12.8, 0.0, 0.0, 1.0);
             
     Material stark( Colour(0, 0, 0), Colour(31/255.0, 29/255.0, 82/255.0), 
 			Colour(96/255.0, 208/255.0, 255/255.0), 
-			12.8, 0.0,0.0,1.0);
+			12.8, 0.0, 1.3, 0.3);
             
 	Material bade( Colour(0, 0, 0), Colour(0.24, 0.14, 0.73), 
 		Colour(0.206228, 0.506228, 0.306228), 
@@ -455,11 +451,11 @@ int main(int argc, char* argv[])
 	 			Colour(0.99, 0.92, 0.9) ) );
 
 	// Add a unit square into the scene with material mat.
-	// SceneDagNode* sphere = raytracer.addObject( new UnitSphere(), &pantone );
+	SceneDagNode* sphere = raytracer.addObject( new UnitSphere(), &gold );
 	// SceneDagNode* sphere2 = raytracer.addObject( new UnitSphere(), &pantone );
     // SceneDagNode* sphere3 = raytracer.addObject( new UnitSphere(), &pantone );
     // SceneDagNode* sphere4 = raytracer.addObject( new UnitSphere(), &pantone );
-	SceneDagNode* plane = raytracer.addObject( new UnitSquare(), &stark );
+	SceneDagNode* plane = raytracer.addObject( new UnitSquare(), &jade );
     
 	// Apply some transformations to the unit square.
 	double factor1[3] = { 1.5, 1.5, 1.5 };
@@ -468,8 +464,8 @@ int main(int argc, char* argv[])
 
 	//double factor3[3] = { 40.0, 40.0, 40.0 };
     
-	// raytracer.translate(sphere, Vector3D(0.2, -0.2, -3));	
-	// raytracer.scale(sphere, Point3D(0, 0, 0), factor1);
+	raytracer.translate(sphere, Vector3D(1.0, 3.5, -3.0));	
+	raytracer.scale(sphere, Point3D(0, 0, 0), factor1);
 
 	// raytracer.translate(sphere2, Vector3D(2, 1.5, -3.4));	
 	// raytracer.scale(sphere2, Point3D(0, 0, 0), factor3);	
@@ -513,11 +509,11 @@ int main(int argc, char* argv[])
     // raytracer.scale(cube, Point3D(0, 0, 0), breaded);
     
     //double deerFactor[3] = { 0.05, 0.05, 0.05 };
-    TriangleMesh* deerMesh = new TriangleMesh("wurf.obj");
-    SceneDagNode* der = raytracer.addObject(deerMesh, &high);
-    raytracer.translate(der, Vector3D(2.0, 1.0, -3.5));
-    raytracer.rotate(der, 'x', 45);
-    raytracer.scale(der, Point3D(0, 0, 0), factor1);
+    // TriangleMesh* deerMesh = new TriangleMesh("wurf.obj");
+    // SceneDagNode* der = raytracer.addObject(deerMesh, &high);
+    // raytracer.translate(der, Vector3D(2.0, 1.0, -3.5));
+    // raytracer.rotate(der, 'x', 45);
+    // raytracer.scale(der, Point3D(0, 0, 0), factor1);
     
 	// Render the scene, feel free to make the image smaller for
 	// testing purposes.	

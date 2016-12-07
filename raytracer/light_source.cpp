@@ -11,7 +11,7 @@
 #include <cmath>
 #include "light_source.h"
 
-Colour PointLight::shade( Ray3D& ray ) {
+Colour PointLight::shade( Ray3D& ray) {
 	// TODO: implement this function to fill in values for ray.col 
 	// using phong shading.  Make sure your vectors are normalized, and
 	// clamp colour values to 1.0.
@@ -22,13 +22,16 @@ Colour PointLight::shade( Ray3D& ray ) {
    
     double Ka = 0.2;
     double Kd = 0.7;
-    double Ks = 0.8; 
+    double Ks = 0.8;
+
     
     Intersection in = ray.intersection;
     Point3D p = in.point; //point on surface
     Vector3D s = _pos - p; //light vector
-    Material *ma = in.mat;
     s.normalize(); 
+    Material *ma = in.mat;
+
+
     double lam = std::max((in.normal).dot(s),0.0);
     s.normalize();
     double spec = 0.0;
@@ -54,3 +57,10 @@ Colour PointLight::shade( Ray3D& ray ) {
     
 }
 
+Colour PointLight::shadow() {
+    double Ka = 0.2;
+    
+    Colour co = Ka*_col_ambient;
+    co.clamp();
+    return co;
+}
